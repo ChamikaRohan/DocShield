@@ -18,7 +18,7 @@ const io = new Server(server, {cors: {corsOptions}});
 const PORT = process.env.PORT || 3000;
 
 io.on('connection', (socket)=>{
-    console.log("A user is connected!");
+    console.log(`A user:${socket.id} is connected!`);
 });
 
 server.listen(PORT, ()=>{
