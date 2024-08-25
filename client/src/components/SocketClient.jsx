@@ -27,12 +27,12 @@ export default function SocketClient() {
         if (selectedFile) {
             try {
                 const signedBlob = await digitallySign(selectedFile, 'Chamika Rohan');
-                const signedFileUrl = URL.createObjectURL(signedBlob);
-                setSignedFile(signedFileUrl);
-    
-                // Automatically trigger download (optional)
+                setSignedFile(signedBlob);
+
+                // Optionally trigger download
+                // const url = URL.createObjectURL(signedBlob);
                 // const a = document.createElement('a');
-                // a.href = signedFileUrl;
+                // a.href = url;
                 // a.download = 'signed_document.pdf';
                 // document.body.appendChild(a);
                 // a.click();
@@ -48,7 +48,16 @@ export default function SocketClient() {
 
     const sendFile = () => {
         if (signedFile && socket) {
-            socket.emit('file', { url: signedFile, name: 'signed_document.pdf' }, roomId);
+            console.log("sending...");
+            const reader = new FileReader();
+            
+            reader.onloadend = () => {
+                const arrayBuffer = reader.result;
+                console.log(arrayBuffer);
+                socket.emit('file', { data: arrayBuffer, name: 'signed_document.pdf' }, roomId);
+            };
+
+            reader.readAsArrayBuffer(signedFile);
         } else {
             alert('Please sign a file and join a room first.');
         }

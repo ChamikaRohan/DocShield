@@ -1,3 +1,11 @@
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+
 const ROOM_NAMES = ['abc@gmail.com', 'xyz@gmail.com'];
 
 const socketHandler = (io) => {
@@ -24,10 +32,22 @@ const socketHandler = (io) => {
         });
 
         socket.on('file', (fileData, roomId) => {
+            console.log("inside");
             if (ROOM_NAMES.includes(roomId)) {
-                console.log(`Received file from ${socket.id} in room ${roomId}:`, fileData);
+                console.log(`Received file from ${socket.id} in room ${roomId}`);
 
-                socket.emit('fileStatus', { success: true, message: 'File received and processed successfully.' });
+                const { data, name } = fileData;
+                const filePath = path.join(__dirname, 'uploads', name);
+
+                fs.writeFile(filePath, Buffer.from(new Uint8Array(data)), (err) => {
+                    if (err) {
+                        console.error('Error saving file:', err);
+                        socket.emit('fileStatus', { success: false, message: 'File processing failed.' });
+                    } else {
+                        console.log('File saved successfully:', filePath);
+                        socket.emit('fileStatus', { success: true, message: 'File received and processed successfully.' });
+                    }
+                });
             } else {
                 socket.emit('error', 'Invalid room ID');
             }
