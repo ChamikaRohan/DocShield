@@ -1,28 +1,64 @@
-import React, { useState } from 'react';
-import { io } from 'socket.io-client';
+import React, { useState, useEffect } from 'react';
+import io from 'socket.io-client';
+
+const SERVER_URL = 'http://localhost:8080'; // Change this to your server URL
 
 export default function SocketClient() {
-  const [socket, setSocket] = useState(null);
+    const [socket, setSocket] = useState(null);
+    const [roomId, setRoomId] = useState('');
+    const [message, setMessage] = useState('');
+    const [messages, setMessages] = useState([]);
+    const [error, setError] = useState('');
 
-  const connectSocket = () => {
-    if (!socket) {
-      const newSocket = io('http://localhost:8080');
-      setSocket(newSocket);
+    useEffect(() => {
+        const socketIo = io(SERVER_URL, { transports: ['websocket'] });
+        setSocket(socketIo);
 
-      newSocket.on('connect', () => {
-        console.log('Connected to the server!');
-      });
+        socketIo.on('message', (msg) => {
+            setMessages((prevMessages) => [...prevMessages, msg]);
+        });
 
-      newSocket.on('disconnect', () => {
-        console.log('Disconnected from the server.');
-      });
-    }
-  };
+        socketIo.on('error', (errorMessage) => {
+            setError(errorMessage);
+        });
 
-  return (
-    <div className="App">
-      <h1>Socket.IO Client</h1>
-      <button onClick={connectSocket}>Connect to Socket.IO Server</button>
-    </div>
-  );
+        return () => {
+            socketIo.disconnect();
+        };
+    }, []);
+
+    const joinRoom = () => {
+            socket.emit('joinRoom', roomId);
+    };
+
+    const sendMessage = () => {
+            socket.emit('message', message, roomId);
+            setMessage('');
+    };
+
+    return (
+        <div>
+            <h1>Chat App</h1>
+            <input
+                type="text"
+                placeholder="Enter room ID (ABC or XYZ)"
+                value={roomId}
+                onChange={(e) => setRoomId(e.target.value)}
+            />
+            <button onClick={joinRoom}>Join Room</button>
+            <input
+                type="text"
+                placeholder="Type a message..."
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+            />
+            <button onClick={sendMessage}>Send</button>
+            <div id="messages">
+                {messages.map((msg, index) => (
+                    <p key={index}>{msg}</p>
+                ))}
+            </div>
+            {error && <div id="error" style={{ color: 'red' }}>{error}</div>}
+        </div>
+    );
 }
