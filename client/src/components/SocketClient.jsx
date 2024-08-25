@@ -12,6 +12,7 @@ export default function SocketClient() {
     const [error, setError] = useState('');
     const [selectedFile, setSelectedFile] = useState(null);
     const [signedFile, setSignedFile] = useState(null);
+    const [fileStatus, setFileStatus] = useState('');
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
@@ -29,7 +30,7 @@ export default function SocketClient() {
                 const signedFileUrl = URL.createObjectURL(signedBlob);
                 setSignedFile(signedFileUrl);
     
-                // // Automatically trigger download
+                // Automatically trigger download (optional)
                 // const a = document.createElement('a');
                 // a.href = signedFileUrl;
                 // a.download = 'signed_document.pdf';
@@ -44,7 +45,14 @@ export default function SocketClient() {
             alert('Please select a PDF file to sign.');
         }
     };
-    
+
+    const sendFile = () => {
+        if (signedFile && socket) {
+            socket.emit('file', { url: signedFile, name: 'signed_document.pdf' }, roomId);
+        } else {
+            alert('Please sign a file and join a room first.');
+        }
+    };
 
     useEffect(() => {
         const socketIo = io(serverURL, { transports: ['websocket'] });
@@ -52,6 +60,14 @@ export default function SocketClient() {
 
         socketIo.on('message', (msg) => {
             setMessages((prevMessages) => [...prevMessages, msg]);
+        });
+
+        socketIo.on('fileStatus', (status) => {
+            if (status.success) {
+                setFileStatus(status.message); // Show success message
+            } else {
+                setFileStatus('File processing failed.');
+            }
         });
 
         socketIo.on('error', (errorMessage) => {
@@ -76,13 +92,6 @@ export default function SocketClient() {
         }
     };
 
-    const sendFile = () => {
-        if (signedFile && socket) {
-            socket.emit('file', { url: signedFile, name: 'signed_document.pdf' }, roomId);
-        } else {
-            alert('Please sign a file and join a room first.');
-        }
-    };
     return (
         <div>
             <h1>Chat App</h1>
@@ -113,9 +122,7 @@ export default function SocketClient() {
                 ))}
             </div>
             {error && <div id="error" style={{ color: 'red' }}>{error}</div>}
-            {signedFile && (
-                <a href={signedFile} download="signed_document.pdf">Download Signed PDF</a>
-            )}
+            {fileStatus && <div id="file-status">{fileStatus}</div>}
         </div>
     );
 }

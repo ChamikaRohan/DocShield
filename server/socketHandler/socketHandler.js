@@ -7,8 +7,8 @@ const socketHandler = (io) => {
         socket.on('joinRoom', (roomId) => {
             if (ROOM_NAMES.includes(roomId)) {
                 socket.join(roomId);
-                console.log(`User ${socket.id} joined room ${roomId}`);
-                io.to(roomId).emit('message', `User ${socket.id} has joined the room.`);
+                console.log(`User:${socket.id} joined room:${roomId}`);
+                io.to(roomId).emit('message', `User:${socket.id} has joined the room`);
             } else {
                 socket.emit('error', 'Invalid room ID');
             }
@@ -18,6 +18,16 @@ const socketHandler = (io) => {
             if (ROOM_NAMES.includes(roomId)) {
                 console.log(`Received message from ${socket.id} in room ${roomId}: ${message}`);
                 io.to(roomId).emit('message', message);
+            } else {
+                socket.emit('error', 'Invalid room ID');
+            }
+        });
+
+        socket.on('file', (fileData, roomId) => {
+            if (ROOM_NAMES.includes(roomId)) {
+                console.log(`Received file from ${socket.id} in room ${roomId}:`, fileData);
+
+                socket.emit('fileStatus', { success: true, message: 'File received and processed successfully.' });
             } else {
                 socket.emit('error', 'Invalid room ID');
             }
