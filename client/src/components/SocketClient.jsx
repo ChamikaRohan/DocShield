@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 
-const SERVER_URL = 'http://localhost:8080'; // Change this to your server URL
-
 export default function SocketClient() {
+    const serverURL = import.meta.env.VITE_SERVER_BASE_URL;
+
     const [socket, setSocket] = useState(null);
     const [roomId, setRoomId] = useState('');
     const [message, setMessage] = useState('');
@@ -11,7 +11,7 @@ export default function SocketClient() {
     const [error, setError] = useState('');
 
     useEffect(() => {
-        const socketIo = io(SERVER_URL, { transports: ['websocket'] });
+        const socketIo = io(serverURL, { transports: ['websocket'] });
         setSocket(socketIo);
 
         socketIo.on('message', (msg) => {

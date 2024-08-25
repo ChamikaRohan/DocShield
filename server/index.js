@@ -18,7 +18,6 @@ const io = new Server(server, { cors: corsOptions });
 
 const PORT = process.env.PORT || 3000;
 
-// Initialize the socket handler
 socketHandler(io);
 
 server.listen(PORT, () => {
