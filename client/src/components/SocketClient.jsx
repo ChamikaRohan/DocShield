@@ -73,7 +73,7 @@ export default function SocketClient() {
 
         socketIo.on('fileStatus', (status) => {
             if (status.success) {
-                setFileStatus(status.message); // Show success message
+                setFileStatus(status.message); 
             } else {
                 setFileStatus('File processing failed.');
             }
