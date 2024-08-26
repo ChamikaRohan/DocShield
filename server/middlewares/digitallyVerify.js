@@ -1,4 +1,4 @@
-export const  digitallyVerify =  () => {
+export const  digitallyVerify =  (req, res, next) => {
  
 }
 
