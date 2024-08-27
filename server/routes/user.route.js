@@ -10,8 +10,9 @@ const uploadFileMulter = multer({ storage: multer.memoryStorage() })
 
 const route = express.Router();
 
+route.get("/test", (req, res)=>{res.status(200).json("Working...")});
 route.post("/create-user", signupUser);
-// route.post("/upload-doc", digitallyVerify);
-route.post("/upload-doc",uploadFileMulter.single('file'), uploadDoc);
+route.post("/verify-upload-doc", digitallyVerify, uploadFileMulter.single('file'), uploadDoc);
+// route.post("/upload-doc",uploadFileMulter.single('file'), uploadDoc);
 
 export default route;

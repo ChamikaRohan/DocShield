@@ -23,12 +23,15 @@ const socketHandler = (io) => {
             }
         });
 
-        socket.on('file', (fileData, roomId) => {
+        socket.on('file', async (fileData, roomId) => {
             console.log("inside");
             if (ROOM_NAMES.includes(roomId)) {
                 console.log(`Received file from ${socket.id} in room ${roomId}`);
 
                 const { data, name } = fileData;
+                const response = await fetch("http://localhost:8080/api/user/test") ;
+                const data2 = await response.json();
+                console.log(data2)
 
                 socket.emit('fileStatus', { success: true, message: 'File received successfully.' });
             } else {
