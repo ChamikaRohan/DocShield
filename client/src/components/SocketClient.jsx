@@ -30,13 +30,13 @@ export default function SocketClient() {
                 setSignedFile(signedBlob);
 
                 // Optionally trigger download
-                // const url = URL.createObjectURL(signedBlob);
-                // const a = document.createElement('a');
-                // a.href = url;
-                // a.download = 'signed_document.pdf';
-                // document.body.appendChild(a);
-                // a.click();
-                // document.body.removeChild(a);
+                const url = URL.createObjectURL(signedBlob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'signed_document.pdf';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
     
             } catch (error) {
                 console.error('Error signing file:', error);

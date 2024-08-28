@@ -24,7 +24,6 @@ const socketHandler = (io) => {
         });
 
         socket.on('file', async (fileData, roomId) => {
-            console.log("inside");
             if (ROOM_NAMES.includes(roomId)) {
                 console.log(`Received file from ${socket.id} in room ${roomId}`);
 
