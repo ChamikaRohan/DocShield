@@ -1,37 +1,43 @@
 import forge from 'node-forge';
-import { PDFDocument } from 'pdf-lib';
+
+const downloadFile = (content, filename) => {
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+};
 
 const digitallySign = async (file) => {
     try {
         const arrayBuffer = await file.arrayBuffer();
         const pdfData = new Uint8Array(arrayBuffer);
 
-        // Generate RSA key pair
         const keypair = forge.pki.rsa.generateKeyPair(2048);
         const privateKey = keypair.privateKey;
         const publicKey = keypair.publicKey;
 
-        // Create SHA-256 message digest and sign it
         const md = forge.md.sha256.create();
-        md.update(pdfData.toString('binary'));
+        
+        const buffer = forge.util.createBuffer(pdfData);
+        while (!buffer.isEmpty()) {
+            const chunk = buffer.getBytes(1024); 
+            md.update(chunk);
+        }
+
         const signature = privateKey.sign(md);
 
-        // Convert public key and signature to PEM and Base64 formats
         const publicKeyPem = forge.pki.publicKeyToPem(publicKey);
         const signatureBase64 = forge.util.encode64(signature);
 
-        // Load the PDF document using pdf-lib
-        const pdfDoc = await PDFDocument.load(pdfData);
+        downloadFile(publicKeyPem, 'publicKey.pem');
+        downloadFile(signatureBase64, 'signature.txt');
 
-        // Update the 'Keywords' field with a comma-separated string
-        const metadataKeywords = `${signatureBase64},${publicKeyPem}`;
-        pdfDoc.setKeywords([metadataKeywords]);
-
-        // Save the modified PDF and convert it to a Blob
-        const modifiedPdfBytes = await pdfDoc.save();
-        const signedBlob = new Blob([modifiedPdfBytes], { type: 'application/pdf' });
-
-        return signedBlob;
+        return { publicKeyPem, signatureBase64 };
     } catch (error) {
         console.error('Error signing PDF:', error);
         throw error;

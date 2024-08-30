@@ -11,7 +11,8 @@ export default function SocketClient() {
     const [messages, setMessages] = useState([]);
     const [error, setError] = useState('');
     const [selectedFile, setSelectedFile] = useState(null);
-    const [signedFile, setSignedFile] = useState(null);
+    const [publicKeyPemData, setPublicKeyPemData] = useState(null);
+    const [signatureBase64Data, setSignatureBase64Data] = useState(null);
     const [fileStatus, setFileStatus] = useState('');
 
     const handleFileChange = (e) => {
@@ -26,17 +27,20 @@ export default function SocketClient() {
     const handleSign = async () => {
         if (selectedFile) {
             try {
-                const signedBlob = await digitallySign(selectedFile);
-                setSignedFile(signedBlob);
-
-                // Optionally trigger download
-                // const url = URL.createObjectURL(signedBlob);
+                const { publicKeyPem, signatureBase64 } = await digitallySign(selectedFile);
+            
+                // Set state or use the values as needed
+                setPublicKeyPemData(publicKeyPem);
+                setSignatureBase64Data(signatureBase64);
+                
+                // const jsonString = JSON.stringify(secretSignatureData, null, 2); // Convert to a pretty JSON string
+                // const blob = new Blob([jsonString], { type: 'application/json' });
+                // const url = URL.createObjectURL(blob);
                 // const a = document.createElement('a');
                 // a.href = url;
-                // a.download = 'signed_document.pdf';
-                // document.body.appendChild(a);
+                // a.download = 'signatureData.json';
                 // a.click();
-                // document.body.removeChild(a);
+                // URL.revokeObjectURL(url); // Clean up the URL object
     
             } catch (error) {
                 console.error('Error signing file:', error);
@@ -85,16 +89,27 @@ export default function SocketClient() {
     };
 
     const sendFile = () => {
-        if (signedFile && socket) {
+        if (socket) {
             const reader = new FileReader();
-            
+    
             reader.onloadend = () => {
                 const arrayBuffer = reader.result;
-                console.log(arrayBuffer);
-                socket.emit('file', { data: arrayBuffer, name: 'signed_document.pdf' }, roomId);
-            };
+                
+                // Create a bundle of the original PDF file and the secret data
+                const fileBundle = {
+                    pdfData: arrayBuffer,   // Original PDF file data
+                    publicKeyData: publicKeyPemData, 
+                    signatureData: signatureBase64Data,
+                    name: selectedFile.name // Name of the original PDF file
+                };
 
-            reader.readAsArrayBuffer(signedFile);
+    
+                // Emit the fileBundle through the socket
+                socket.emit('file', fileBundle, roomId);
+            };
+    
+            // Read the selected file as an ArrayBuffer
+            reader.readAsArrayBuffer(selectedFile);
         } else {
             alert('Please sign a file and join a room first.');
         }
