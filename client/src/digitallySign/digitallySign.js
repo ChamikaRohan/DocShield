@@ -1,43 +1,37 @@
 import forge from 'node-forge';
 import { PDFDocument } from 'pdf-lib';
 
-const digitallySign = async (file, signingKey) => {
+const digitallySign = async (file) => {
     try {
         const arrayBuffer = await file.arrayBuffer();
         const pdfData = new Uint8Array(arrayBuffer);
-        
-        // Generate keys (for demonstration purposes)
+
+        // Generate RSA key pair
         const keypair = forge.pki.rsa.generateKeyPair(2048);
         const privateKey = keypair.privateKey;
         const publicKey = keypair.publicKey;
 
-        // Sign the PDF file using the private key
+        // Create SHA-256 message digest and sign it
         const md = forge.md.sha256.create();
         md.update(pdfData.toString('binary'));
         const signature = privateKey.sign(md);
 
-        // Convert public key and signature to PEM format
+        // Convert public key and signature to PEM and Base64 formats
         const publicKeyPem = forge.pki.publicKeyToPem(publicKey);
         const signatureBase64 = forge.util.encode64(signature);
 
-        // Prepare the content for the .txt file
-        const fileContent = `Public Key:\n${publicKeyPem}\n\nSignature:\n${signatureBase64}`;
-        
-        // Create a Blob from the file content
-        const blob = new Blob([fileContent], { type: 'text/plain' });
-        
-        // Create a download link
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'signature-info.txt';
-        a.click();
-        
-        // Clean up the URL object
-        URL.revokeObjectURL(url);
+        // Load the PDF document using pdf-lib
+        const pdfDoc = await PDFDocument.load(pdfData);
 
-        console.log('Signature info file has been downloaded.');
-        
+        // Update the 'Keywords' field with a comma-separated string
+        const metadataKeywords = `${signatureBase64},${publicKeyPem}`;
+        pdfDoc.setKeywords([metadataKeywords]);
+
+        // Save the modified PDF and convert it to a Blob
+        const modifiedPdfBytes = await pdfDoc.save();
+        const signedBlob = new Blob([modifiedPdfBytes], { type: 'application/pdf' });
+
+        return signedBlob;
     } catch (error) {
         console.error('Error signing PDF:', error);
         throw error;

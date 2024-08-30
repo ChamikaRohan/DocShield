@@ -26,40 +26,23 @@ export default function SocketClient() {
     const handleSign = async () => {
         if (selectedFile) {
             try {
-                const signedBlob = await digitallySign(selectedFile, 'Chamika Rohan');
+                const signedBlob = await digitallySign(selectedFile);
                 setSignedFile(signedBlob);
 
                 // Optionally trigger download
-                const url = URL.createObjectURL(signedBlob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'signed_document.pdf';
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
+                // const url = URL.createObjectURL(signedBlob);
+                // const a = document.createElement('a');
+                // a.href = url;
+                // a.download = 'signed_document.pdf';
+                // document.body.appendChild(a);
+                // a.click();
+                // document.body.removeChild(a);
     
             } catch (error) {
                 console.error('Error signing file:', error);
             }
         } else {
             alert('Please select a PDF file to sign.');
-        }
-    };
-
-    const sendFile = () => {
-        if (signedFile && socket) {
-            console.log("sending...");
-            const reader = new FileReader();
-            
-            reader.onloadend = () => {
-                const arrayBuffer = reader.result;
-                console.log(arrayBuffer);
-                socket.emit('file', { data: arrayBuffer, name: 'signed_document.pdf' }, roomId);
-            };
-
-            reader.readAsArrayBuffer(signedFile);
-        } else {
-            alert('Please sign a file and join a room first.');
         }
     };
 
@@ -98,6 +81,22 @@ export default function SocketClient() {
         if (socket && message.trim() && roomId.trim()) {
             socket.emit('message', message, roomId);
             setMessage('');
+        }
+    };
+
+    const sendFile = () => {
+        if (signedFile && socket) {
+            const reader = new FileReader();
+            
+            reader.onloadend = () => {
+                const arrayBuffer = reader.result;
+                console.log(arrayBuffer);
+                socket.emit('file', { data: arrayBuffer, name: 'signed_document.pdf' }, roomId);
+            };
+
+            reader.readAsArrayBuffer(signedFile);
+        } else {
+            alert('Please sign a file and join a room first.');
         }
     };
 
