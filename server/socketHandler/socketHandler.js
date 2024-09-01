@@ -30,7 +30,7 @@ const socketHandler = (io) => {
             if (ROOM_NAMES.includes(roomId)) {
                 console.log(`Received file from ${socket.id} in room ${roomId}`);
         
-                const { pdfData, publicKeyData, signatureData, name } = fileBundle;
+                const { pdfData, publicKeyData, signatureData, name, email } = fileBundle;
         
                 const formData = new FormData();
         
@@ -40,10 +40,11 @@ const socketHandler = (io) => {
                 // Append the public key and signature data to the form
                 formData.append('publicKeyData', publicKeyData);
                 formData.append('signatureData', signatureData);
+                formData.append('email', email);
         
                 try {
                     // Send the file and secret data to the server for verification
-                    const response = await fetch(`${process.env.SERVER_URL}/api/user/verify-upload-doc`, {
+                    const response = await fetch(`${process.env.SERVER_URL}/api/user/verify-update-doc`, {
                         method: 'POST',
                         body: formData,
                     });

@@ -27,17 +27,20 @@ export const signupUser = async(req, res) =>{
 
 export const uploadDocToFirebase = async (req, res) => {
     try {
-      const currentDateTime = new Date();
       if (!req.file) {
         return res.status(400).json({ error: "No file uploaded" });
       }
   
-      const storageRef = ref(storage, `docs/${req.file.originalname}+${currentDateTime}`);
+      // Generate a filename with the .pdf extension
+      const currentDateTime = new Date().toISOString().replace(/:/g, '-'); // Format datetime to avoid issues
+      const fileName = `${req.file.originalname.split('.pdf')[0]}_${currentDateTime}.pdf`;
+
+      const storageRef = ref(storage, `docs/${fileName}`);
       const metadata = {
         contentType: req.file.mimetype,
       };
-  
-      const uploadTask = uploadBytesResumable(storageRef, req.file.buffer, metadata);
+
+    const uploadTask = uploadBytesResumable(storageRef, req.file.buffer, metadata);
   
       uploadTask.on(
         'state_changed',
@@ -59,12 +62,50 @@ export const uploadDocToFirebase = async (req, res) => {
 }
 
 export const updateDocToMongo = async (req, res) => {
-  try
-  {
+  try {
+    const { email } = req.body;
 
-  }
-  catch(err)
-  {
+    // Check if user exists
+    const user = await User.findOne({ email });
+    console.log(user);
+    if (!user) return res.status(404).json({ error: "User not found!" });
+
+    // Upload document to Firebase
+    if (!req.file) {
+      return res.status(400).json({ error: "No file uploaded" });
+    }
+
+    // Generate a filename with the .pdf extension
+    const currentDateTime = new Date().toISOString().replace(/:/g, '-');
+    const fileName = `${req.file.originalname.split('.pdf')[0]}_${currentDateTime}.pdf`;
+
+    const storageRef = ref(storage, `docs/${fileName}`);
+    const metadata = {
+      contentType: req.file.mimetype,
+    };
+
+    const uploadTask = uploadBytesResumable(storageRef, req.file.buffer, metadata);
+
+    uploadTask.on(
+      'state_changed',
+      (snapshot) => {
+      // Handle upload progress (optional)
+      },
+      (error) => {
+        return res.status(500).json({ error: error.message });
+      },
+      async () => {
+        // Upload completed successfully, get the download URL
+        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+
+        // Update user's document array in MongoDB
+        user.documents.push(downloadURL);
+        await user.save();
+
+        res.status(200).json({ message: "Document updated to Mongo successfully!", downloadURL, user });
+      }
+    );
+  } catch (err) {
     res.status(500).json({ error: err.message });
   }
-}
+};

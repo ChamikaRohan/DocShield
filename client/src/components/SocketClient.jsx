@@ -100,7 +100,8 @@ export default function SocketClient() {
                     pdfData: arrayBuffer,   // Original PDF file data
                     publicKeyData: publicKeyPemData, 
                     signatureData: signatureBase64Data,
-                    name: selectedFile.name // Name of the original PDF file
+                    name: selectedFile.name, // Name of the original PDF file
+                    email: roomId
                 };
 
     
