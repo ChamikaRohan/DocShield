@@ -25,7 +25,7 @@ export const signupUser = async(req, res) =>{
     }
 }
 
-export const uploadDoc = async (req, res) => {
+export const uploadDocToFirebase = async (req, res) => {
     try {
       const currentDateTime = new Date();
       if (!req.file) {
@@ -56,4 +56,15 @@ export const uploadDoc = async (req, res) => {
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
+}
+
+export const updateDocToMongo = async (req, res) => {
+  try
+  {
+
+  }
+  catch(err)
+  {
+    res.status(500).json({ error: err.message });
+  }
 }

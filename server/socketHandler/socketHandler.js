@@ -1,3 +1,6 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 const ROOM_NAMES = ['abc@gmail.com', 'xyz@gmail.com'];
 
 const socketHandler = (io) => {
@@ -40,7 +43,7 @@ const socketHandler = (io) => {
         
                 try {
                     // Send the file and secret data to the server for verification
-                    const response = await fetch("http://localhost:8080/api/user/verify-upload-doc", {
+                    const response = await fetch(`${process.env.SERVER_URL}/api/user/verify-upload-doc`, {
                         method: 'POST',
                         body: formData,
                     });
