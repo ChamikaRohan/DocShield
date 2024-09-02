@@ -1,5 +1,6 @@
 import User from "../models/user.model.js"
 import bcryptjs from "bcryptjs"
+import jwt from "jsonwebtoken";
 import { initializeApp } from "firebase/app"
 import { getStorage, ref, getDownloadURL, uploadBytesResumable } from "firebase/storage"
 import fconfig from "../firebase/firebaseConfig.js"
@@ -24,6 +25,29 @@ export const signupUser = async(req, res) =>{
         res.status(500).json({error: "Internal server error!"});
     }
 }
+
+export const signinUser = async (req, res) => {
+  try {
+    const JWT_SECRET = process.env.JWT_SECRET;
+    
+    const { email, password } = req.body;
+
+    // Check if user exists
+    const user = await User.findOne({ email });
+    if (!user) return res.status(400).json({ error: "Invalid email or password!" });
+
+    // Check if the password is correct
+    const isMatch = bcryptjs.compareSync(password, user.password);
+    if (!isMatch) return res.status(400).json({ error: "Invalid email or password!" });
+
+    // Generate JWT token
+    const token = jwt.sign({ email: user.email, id: user._id }, JWT_SECRET, { expiresIn: '1h' });
+
+    res.status(200).cookie("access_token", token, {httpOnly: true, secure: true, sameSite: 'None'}).json({ message: "Signin successful!" });
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error!" });
+  }
+};
 
 export const uploadDocToFirebase = async (req, res) => {
     try {
