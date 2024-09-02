@@ -109,3 +109,17 @@ export const updateDocToMongo = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+export const getAllUserEmails = async () => {
+  try {
+    // Find all users and only return their email field
+    const users = await User.find({}, 'email');
+
+    // Extract emails from the user objects and store them in an array
+    const emails = users.map(user => user.email);
+
+    return emails;
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error!" });
+  }
+};

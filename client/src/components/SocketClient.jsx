@@ -89,9 +89,19 @@ export default function SocketClient() {
     };
 
     const sendFile = () => {
+        if (!roomId.trim()) {
+            alert('Please join a room first.');
+            return;
+        }
+    
+        if (!selectedFile) {
+            alert('Please select a PDF file to upload.');
+            return;
+        }
+    
         if (socket) {
             const reader = new FileReader();
-    
+        
             reader.onloadend = () => {
                 const arrayBuffer = reader.result;
                 
@@ -103,18 +113,18 @@ export default function SocketClient() {
                     name: selectedFile.name, // Name of the original PDF file
                     email: roomId
                 };
-
     
                 // Emit the fileBundle through the socket
                 socket.emit('file', fileBundle, roomId);
             };
-    
+        
             // Read the selected file as an ArrayBuffer
             reader.readAsArrayBuffer(selectedFile);
         } else {
-            alert('Please sign a file and join a room first.');
+            alert('Socket connection not established.');
         }
     };
+    
 
     return (
         <div>

@@ -1,14 +1,16 @@
 import dotenv from 'dotenv';
+import {getAllUserEmails} from "../controllers/user.controller.js"
 dotenv.config();
-
-const ROOM_NAMES = ['abc@gmail.com', 'xyz@gmail.com'];
 
 const socketHandler = (io) => {
     io.on('connection', (socket) => {
         console.log(`User:${socket.id} is connected to the socket.io server!`);
 
-        socket.on('joinRoom', (roomId) => {
-            if (ROOM_NAMES.includes(roomId)) {
+        socket.on('joinRoom', async (roomId) => {
+
+            const emailList = await getAllUserEmails();
+
+            if (emailList.includes(roomId)) {
                 socket.join(roomId);
                 console.log(`User:${socket.id} joined room:${roomId}`);
                 io.to(roomId).emit('message', `User:${socket.id} has joined the room`);
@@ -27,7 +29,6 @@ const socketHandler = (io) => {
         });
 
         socket.on('file', async (fileBundle, roomId) => {
-            if (ROOM_NAMES.includes(roomId)) {
                 console.log(`Received file from ${socket.id} in room ${roomId}`);
         
                 const { pdfData, publicKeyData, signatureData, name, email } = fileBundle;
@@ -66,9 +67,6 @@ const socketHandler = (io) => {
                     // Emit error status to the client
                     socket.emit('fileStatus', { success: false, message: 'Error uploading file and secret data.' });
                 }
-            } else {
-                socket.emit('error', 'Invalid room ID');
-            }
         });
         
 
