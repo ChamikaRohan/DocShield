@@ -112,13 +112,20 @@ export const updateDocToMongo = async (req, res) => {
 
 export const getAllUserEmails = async () => {
   try {
-    // Find all users and only return their email field
     const users = await User.find({}, 'email');
-
-    // Extract emails from the user objects and store them in an array
     const emails = users.map(user => user.email);
-
     return emails;
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error!" });
+  }
+};
+
+export const getUser = async (req, res) => {
+  try {
+    const email = req.body.email;
+    const user = await User.findOne({ email }).select('-password -createdAt -updatedAt -__v');;
+    if (!user) return res.status(400).json({ message: "User not found!"});
+    return res.status(200).json(user);
   } catch (error) {
     res.status(500).json({ error: "Internal server error!" });
   }
