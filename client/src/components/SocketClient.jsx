@@ -88,7 +88,7 @@ export default function SocketClient() {
         }
     };
 
-    const sendFile = () => {
+    const sendFile = async () => {
         if (!roomId.trim()) {
             alert('Please join a room first!');
             return;
@@ -100,30 +100,36 @@ export default function SocketClient() {
         }
     
         if (socket) {
+            await handleSign(); // This will trigger the state update, but not necessarily make them immediately available
+        } else {
+            alert('Socket connection not established.');
+        }
+    };
+    
+    useEffect(() => {
+        if (publicKeyPemData && signatureBase64Data && selectedFile) {
             const reader = new FileReader();
-        
+    
             reader.onloadend = () => {
                 const arrayBuffer = reader.result;
-                
-                // Create a bundle of the original PDF file and the secret data
+    
+                // Create a bundle of the original PDF file and the signature data
                 const fileBundle = {
-                    pdfData: arrayBuffer,   // Original PDF file data
-                    publicKeyData: publicKeyPemData, 
+                    pdfData: arrayBuffer,
+                    publicKeyData: publicKeyPemData,
                     signatureData: signatureBase64Data,
-                    name: selectedFile.name, // Name of the original PDF file
+                    name: selectedFile.name,
                     email: roomId
                 };
     
                 // Emit the fileBundle through the socket
                 socket.emit('file', fileBundle, roomId);
             };
-        
-            // Read the selected file as an ArrayBuffer
+    
             reader.readAsArrayBuffer(selectedFile);
-        } else {
-            alert('Socket connection not established.');
         }
-    };
+    }, [publicKeyPemData, signatureBase64Data, selectedFile, roomId, socket]);
+    
     
 
     return (
@@ -148,8 +154,7 @@ export default function SocketClient() {
                 accept="application/pdf"
                 onChange={handleFileChange}
             />
-            <button onClick={handleSign}>Sign Digitally</button>
-            <button onClick={sendFile}>Upload file</button>
+            <button onClick={sendFile}>Send file</button>
             <div id="messages">
                 {messages.map((msg, index) => (
                     <p key={index}>{msg}</p>
