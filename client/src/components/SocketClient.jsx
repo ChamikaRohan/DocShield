@@ -90,12 +90,12 @@ export default function SocketClient() {
 
     const sendFile = () => {
         if (!roomId.trim()) {
-            alert('Please join a room first.');
+            alert('Please join a room first!');
             return;
         }
     
         if (!selectedFile) {
-            alert('Please select a PDF file to upload.');
+            alert('Please select a PDF file to upload!');
             return;
         }
     
