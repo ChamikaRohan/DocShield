@@ -2,8 +2,9 @@ import express from "express"
 import { initializeApp } from "firebase/app";
 import fconfig from "../firebase/firebaseConfig.js"
 import multer from "multer"
-import {signupUser, signinUser, updateDocToMongo, getAllUserEmails, getUser} from "../controllers/user.controller.js"
+import {signupUser, signinUser, updateDocToMongo, getAllUserEmails, getUser, auth} from "../controllers/user.controller.js"
 import digitallyVerify from "../middlewares/digitallyVerify.js"
+import { cookieJwtAuth } from "../middlewares/cookieJwtAuth.js"
 
 initializeApp(fconfig);
 const uploadFileMulter = multer({ storage: multer.memoryStorage() })
@@ -11,7 +12,8 @@ const uploadFileMulter = multer({ storage: multer.memoryStorage() })
 const route = express.Router();
 
 route.post("/create-user", signupUser);
-route.get("/signin-user", signinUser);
+route.post("/signin-user", signinUser);
+route.post('/auth',cookieJwtAuth, auth);
 
 route.post("/verify-update-doc", uploadFileMulter.single('file'), digitallyVerify, updateDocToMongo);
 

@@ -16,6 +16,8 @@ const corsOptions = {
 };
 
 const app = express();
+
+app.use(cors(corsOptions)); 
 app.use(bodyParser.json());
 
 const server = http.createServer(app);

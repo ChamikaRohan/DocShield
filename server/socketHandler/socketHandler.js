@@ -56,8 +56,9 @@ const socketHandler = (io) => {
                     }
         
                     // Process the server's response
-                    const data2 = await response.json();
-                    console.log(data2);
+                    const data = await response.json();
+                    console.log(data);
+                    console.log(roomId);
         
                     // Emit status to the client
                     socket.emit('fileStatus', { success: true, message: 'File and secret data received successfully.' });

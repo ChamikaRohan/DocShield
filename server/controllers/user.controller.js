@@ -49,6 +49,10 @@ export const signinUser = async (req, res) => {
   }
 };
 
+export const auth = async (req, res) =>{
+  res.status(200).json({user: true, email: req.email});
+}
+
 export const uploadDocToFirebase = async (req, res) => {
     try {
       if (!req.file) {
