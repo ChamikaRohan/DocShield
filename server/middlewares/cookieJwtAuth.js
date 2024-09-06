@@ -6,9 +6,8 @@ export const cookieJwtAuth = (req, res, next)=>{
 
     try {
         const data = jwt.verify(token, process.env.JWT_SECRET);
-        const id = data.id;
-        req.id  = id;
-
+        const email = data.email;
+        req.email  = email;
         next();
       } catch (err) {
         return res.status(401).send({ message: 'Unauthorized: Invalid token' });

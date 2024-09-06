@@ -7,6 +7,7 @@ import bodyParser from "body-parser";
 import mongoose from "mongoose";
 import socketHandler from './socketHandler/socketHandler.js';  
 import userRoute from "./routes/user.route.js"
+import cookieParser from 'cookie-parser';
 
 dotenv.config();
 
@@ -17,6 +18,7 @@ const corsOptions = {
 
 const app = express();
 
+app.use(cookieParser());
 app.use(cors(corsOptions)); 
 app.use(bodyParser.json());
 

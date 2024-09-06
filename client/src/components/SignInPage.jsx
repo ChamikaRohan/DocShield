@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 
 function SignIn() {
+  const serverURL = import.meta.env.VITE_SERVER_BASE_URL;
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -10,7 +12,7 @@ function SignIn() {
     e.preventDefault();
 
     try {
-      const response = await fetch('http://localhost:8080/api/user/signin-user', {
+      const response = await fetch(`${serverURL}/api/user/signin-user`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
