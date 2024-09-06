@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 import digitallySign from '../digitallySign/digitallySign.js';
+import { retriveUserID } from '../middlewares/RetriveUserID.js'; 
 
 export default function SocketClient() {
     const serverURL = import.meta.env.VITE_SERVER_BASE_URL;
@@ -14,6 +15,26 @@ export default function SocketClient() {
     const [publicKeyPemData, setPublicKeyPemData] = useState(null);
     const [signatureBase64Data, setSignatureBase64Data] = useState(null);
     const [fileStatus, setFileStatus] = useState('');
+    const [email, setEmail] = useState(null);
+    console.log(email);
+
+    useEffect(() => {
+        const checkUserAuth = async () => {
+        try {
+            const userEmail = await retriveUserID();
+            if (userEmail.user) {
+            setEmail(userEmail.email);
+            } else {
+            setError('Unauthorized or Invalid token');
+            }
+        } catch (err) {
+            setError('An error occurred while checking the auth status.');
+        }
+        };
+
+        checkUserAuth();
+    }, []);
+
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
@@ -28,8 +49,6 @@ export default function SocketClient() {
         if (selectedFile) {
             try {
                 const { publicKeyPem, signatureBase64 } = await digitallySign(selectedFile);
-            
-                // Set state or use the values as needed
                 setPublicKeyPemData(publicKeyPem);
                 setSignatureBase64Data(signatureBase64);
                 
@@ -100,7 +119,7 @@ export default function SocketClient() {
         }
     
         if (socket) {
-            await handleSign(); // This will trigger the state update, but not necessarily make them immediately available
+            await handleSign(); 
         } else {
             alert('Socket connection not established.');
         }
@@ -119,7 +138,8 @@ export default function SocketClient() {
                     publicKeyData: publicKeyPemData,
                     signatureData: signatureBase64Data,
                     name: selectedFile.name,
-                    email: roomId
+                    email: roomId,
+                    sender: email
                 };
     
                 // Emit the fileBundle through the socket

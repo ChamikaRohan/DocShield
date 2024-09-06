@@ -23,6 +23,12 @@ const userSchema = mongoose.Schema({
         default: [],
         required: false
     }
+    ,
+    senders:{
+        type: [String],
+        default: [],
+        required: false
+    }
 }, {timestamps: true});
 
 export default mongoose.model("users", userSchema);

@@ -31,7 +31,7 @@ const socketHandler = (io) => {
         socket.on('file', async (fileBundle, roomId) => {
                 console.log(`Received file from ${socket.id} in room ${roomId}`);
         
-                const { pdfData, publicKeyData, signatureData, name, email } = fileBundle;
+                const { pdfData, publicKeyData, signatureData, name, email, sender } = fileBundle;
         
                 const formData = new FormData();
         
@@ -42,6 +42,8 @@ const socketHandler = (io) => {
                 formData.append('publicKeyData', publicKeyData);
                 formData.append('signatureData', signatureData);
                 formData.append('email', email);
+                formData.append('sender', sender);
+                console.log("sender: from", sender);
         
                 try {
                     // Send the file and secret data to the server for verification

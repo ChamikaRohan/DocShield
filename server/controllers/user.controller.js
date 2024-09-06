@@ -92,6 +92,8 @@ export const uploadDocToFirebase = async (req, res) => {
 export const updateDocToMongo = async (req, res) => {
   try {
     const { email } = req.body;
+    const { sender } = req.body;
+    console.log(sender);
 
     // Check if user exists
     const user = await User.findOne({ email });
@@ -128,6 +130,7 @@ export const updateDocToMongo = async (req, res) => {
 
         // Update user's document array in MongoDB
         user.documents.push(downloadURL);
+        user.senders.push(sender)
         await user.save();
 
         res.status(200).json({ message: "Document updated to Mongo successfully!", downloadURL, user });
