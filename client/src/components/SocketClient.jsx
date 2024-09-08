@@ -8,7 +8,7 @@ export default function SocketClient() {
 
     const [socket, setSocket] = useState(null);
     const [roomId, setRoomId] = useState('');
-    const [message, setMessage] = useState('');
+    const [docName, setDocName] = useState('');
     const [messages, setMessages] = useState([]);
     const [error, setError] = useState('');
     const [selectedFile, setSelectedFile] = useState(null);
@@ -100,13 +100,6 @@ export default function SocketClient() {
         }
     };
 
-    const sendMessage = () => {
-        if (socket && message.trim() && roomId.trim()) {
-            socket.emit('message', message, roomId);
-            setMessage('');
-        }
-    };
-
     const sendFile = async () => {
         if (!roomId.trim()) {
             alert('Please join a room first!');
@@ -137,7 +130,7 @@ export default function SocketClient() {
                     pdfData: arrayBuffer,
                     publicKeyData: publicKeyPemData,
                     signatureData: signatureBase64Data,
-                    name: selectedFile.name,
+                    name: docName,
                     email: roomId,
                     sender: email
                 };
@@ -149,8 +142,6 @@ export default function SocketClient() {
             reader.readAsArrayBuffer(selectedFile);
         }
     }, [publicKeyPemData, signatureBase64Data, selectedFile, roomId, socket]);
-    
-    
 
     return (
         <div>
@@ -165,10 +156,9 @@ export default function SocketClient() {
             <input
                 type="text"
                 placeholder="Type a message..."
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
+                value={docName}
+                onChange={(e) => setDocName(e.target.value)}
             />
-            <button onClick={sendMessage}>Send</button>
             <input
                 type="file"
                 accept="application/pdf"

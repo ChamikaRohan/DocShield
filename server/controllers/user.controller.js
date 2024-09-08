@@ -29,18 +29,14 @@ export const signupUser = async(req, res) =>{
 export const signinUser = async (req, res) => {
   try {
     const JWT_SECRET = process.env.JWT_SECRET;
-    
     const { email, password } = req.body;
 
-    // Check if user exists
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ error: "Invalid email or password!" });
 
-    // Check if the password is correct
     const isMatch = bcryptjs.compareSync(password, user.password);
     if (!isMatch) return res.status(400).json({ error: "Invalid email or password!" });
 
-    // Generate JWT token
     const token = jwt.sign({ email: user.email, id: user._id }, JWT_SECRET, { expiresIn: '1h' });
 
     res.status(200).cookie("access_token", token, {httpOnly: true, secure: true, sameSite: 'None'}).json({ message: "Signin successful!" });
@@ -58,9 +54,8 @@ export const uploadDocToFirebase = async (req, res) => {
       if (!req.file) {
         return res.status(400).json({ error: "No file uploaded" });
       }
-  
-      // Generate a filename with the .pdf extension
-      const currentDateTime = new Date().toISOString().replace(/:/g, '-'); // Format datetime to avoid issues
+
+      const currentDateTime = new Date().toISOString().replace(/:/g, '-'); 
       const fileName = `${req.file.originalname.split('.pdf')[0]}_${currentDateTime}.pdf`;
 
       const storageRef = ref(storage, `docs/${fileName}`);
@@ -73,13 +68,11 @@ export const uploadDocToFirebase = async (req, res) => {
       uploadTask.on(
         'state_changed',
         (snapshot) => {
-          // Handle upload progress
         },
         (error) => {
           res.status(500).json({ error: error.message });
         },
         async () => {
-          // Upload completed successfully, get the download URL
           const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
           res.status(200).json({ message: "Document uploaded successfully!", downloadURL });
         }
@@ -95,20 +88,18 @@ export const updateDocToMongo = async (req, res) => {
     const { sender } = req.body;
     console.log(sender);
 
-    // Check if user exists
     const user = await User.findOne({ email });
     console.log(user);
     if (!user) return res.status(404).json({ error: "User not found!" });
 
-    // Upload document to Firebase
     if (!req.file) {
       return res.status(400).json({ error: "No file uploaded" });
     }
 
-    // Generate a filename with the .pdf extension
-    const currentDateTime = new Date().toISOString().replace(/:/g, '-');
-    const fileName = `${req.file.originalname.split('.pdf')[0]}_${currentDateTime}.pdf`;
-
+    const currentDateTime = new Date();
+    const formattedDate = currentDateTime.toISOString().split('T')[0];
+    const formattedTime = currentDateTime.toTimeString().split(' ')[0].replace(/:/g, '-');
+    const fileName = `${req.file.originalname.split('.pdf')[0]}_${formattedDate}_${formattedTime}.pdf`;
     const storageRef = ref(storage, `docs/${fileName}`);
     const metadata = {
       contentType: req.file.mimetype,
@@ -119,16 +110,12 @@ export const updateDocToMongo = async (req, res) => {
     uploadTask.on(
       'state_changed',
       (snapshot) => {
-      // Handle upload progress (optional)
       },
       (error) => {
         return res.status(500).json({ error: error.message });
       },
       async () => {
-        // Upload completed successfully, get the download URL
         const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-
-        // Update user's document array in MongoDB
         user.documents.push(downloadURL);
         user.senders.push(sender)
         await user.save();
@@ -141,7 +128,7 @@ export const updateDocToMongo = async (req, res) => {
   }
 };
 
-export const getAllUserEmails = async () => {
+export const getAllUserEmails = async (req, res) => {
   try {
     const users = await User.find({}, 'email');
     const emails = users.map(user => user.email);
