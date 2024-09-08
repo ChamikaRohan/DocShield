@@ -18,6 +18,6 @@ route.post('/auth',cookieJwtAuth, auth);
 route.post("/verify-update-doc", uploadFileMulter.single('file'), digitallyVerify, updateDocToMongo);
 
 route.get("/get-all-emails", getAllUserEmails);
-route.get("/get-user", getUser);
+route.post("/get-user", getUser);
 
 export default route;
