@@ -4,10 +4,13 @@ import CheckAuth from './components/CheckAuth.jsx';
 import SocketClient from './components/SocketClient.jsx';
 import SignInPage from './components/SignInPage.jsx';
 import ViewMyDocs from './components/ViewMyDocs.jsx';
+import Inbox from './pages/Inbox.jsx';
+import Compose from './pages/Compose.jsx';
+import './App.css'
 
 export default function App() {
   return (
-    
+
     <Router>
       <Routes>
         <Route path="/" element={<SignInPage />} />

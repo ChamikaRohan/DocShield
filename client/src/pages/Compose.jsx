@@ -5,7 +5,7 @@ import './compose.css';
 const Compose = () => {
     const [file, setFile] = useState(null);
     const [filePreview, setFilePreview] = useState(null);
-    const isIDFound = 0; 
+    const isIDFound = 1; 
   
  
     const handleFileChange = (event) => {

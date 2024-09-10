@@ -51,13 +51,13 @@ function Navbar() {
               ml: 4,
               display: { xs: 'none', md: 'flex' },
               // fontFamily: 'monospace',
-              fontWeight: '900',
+              fontWeight: '1000',
               letterSpacing: '.2rem',
               color: 'Teal',
               textDecoration: 'none',
               fontFamily:'lato',
               textTransform: 'uppercase',
-              fontSize:'15px'
+              fontSize:'14px'
             }}
           >
             Welcome
