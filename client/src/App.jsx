@@ -7,12 +7,17 @@ import ViewMyDocs from './components/ViewMyDocs.jsx';
 
 export default function App() {
   return (
+    
     <Router>
       <Routes>
         <Route path="/" element={<SignInPage />} />
         <Route path="/auth" element={<CheckAuth />} />
         <Route path="/docs" element={<ViewMyDocs />} />
         <Route path="/socket" element={<SocketClient />} />
+        <Route path="/inbox" element={<Inbox />} />
+        <Route path="/compose" element={<Compose />} />
+
+
       </Routes>
     </Router>
   );
