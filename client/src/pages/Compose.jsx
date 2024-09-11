@@ -159,9 +159,9 @@ const Compose = () => {
                 </div>
 
                 <div style={{ marginTop: '5px', marginBottom: '35px', alignItems: 'center' }}>
-                    <div className="input-container" style={{ margin: '0 auto', maxWidth: '350px', maxHeight: '50px' }}>
+                    <div className="input-container2" style={{ margin: '0 auto', maxWidth: '350px', maxHeight: '50px' }}>
                         <textarea placeholder="Enter Document Title" type="text" />
-                        <button className="button">Send</button>
+                            {/* <button className="button">Send</button> */}
                     </div>
                 </div>
 
