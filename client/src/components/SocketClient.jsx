@@ -13,11 +13,13 @@ export default function SocketClient() {
     const [messages, setMessages] = useState([]);
     const [error, setError] = useState('');
     const [selectedFile, setSelectedFile] = useState(null);
-    const [privateKeyPem, setPrivateKeyPem] = useState(null);
+    const [privateKeyPem, setPrivateKeyPem] =  useState('');
     const [signatureBase64Data, setSignatureBase64Data] = useState(null);
     const [fileStatus, setFileStatus] = useState('');
     const [senderEmail, setSenderEmail] = useState(null);
-    const [recieversPublicKey, setRecieversPublicKey] = useState(''); // Added state for receiver's public key
+    const [recieversPublicKey, setRecieversPublicKey] = useState(''); 
+    const [encryptedFile, setEncryptedFile] = useState(null);
+    const [encryptedAESKey, setEncryptedAESKey] = useState(null);
 
     useEffect(() => {
         const checkUserAuth = async () => {
@@ -51,8 +53,9 @@ export default function SocketClient() {
                 const signatureBase64 = await digitallySign(selectedFile, privateKeyPem);
                 setSignatureBase64Data(signatureBase64);
 
-                const encryptedData = await encrypt(selectedFile, signatureBase64, recieversPublicKey);
-                console.log(encryptedData);
+                const {encryptedFile, encryptedAESKey} = await encrypt(selectedFile, signatureBase64, recieversPublicKey);
+                setEncryptedFile(encryptedFile);
+                setEncryptedAESKey(encryptedAESKey);
             } catch (error) {
                 console.error('Error signing file:', error);
             }
@@ -117,30 +120,21 @@ export default function SocketClient() {
         }
     };
 
-    // useEffect(() => {
-    //     if (privateKeyPem && signatureBase64Data && selectedFile && recieversPublicKey) {
-    //         const reader = new FileReader();
-
-    //         reader.onloadend = () => {
-    //             const arrayBuffer = reader.result;
-
-    //             // Create a bundle of the original PDF file and the signature data
-    //             const fileBundle = {
-    //                 pdfData: arrayBuffer,
-    //                 signatureData: signatureBase64Data,
-    //                 name: docName,
-    //                 email: roomId,
-    //                 sender: senderEmail,
-    //                 recieversPublicKey // Send receiver's public key as part of the fileBundle
-    //             };
-
-    //             // Emit the fileBundle through the socket
-    //             socket.emit('file', fileBundle, roomId);
-    //         };
-
-    //         reader.readAsArrayBuffer(selectedFile);
-    //     }
-    // }, [privateKeyPem, signatureBase64Data, selectedFile, recieversPublicKey, roomId, socket]);
+    useEffect(() => {
+        if (encryptedFile && encryptedAESKey && roomId && socket) {
+            const fileBundle = {
+                pdfData: encryptedFile,
+                signatureData: signatureBase64Data,
+                encryptedAESKey: encryptedAESKey,
+                name: docName,
+                email: roomId,
+                sender: senderEmail,
+            };
+    
+            socket.emit('file', fileBundle, roomId);
+        }
+    }, [encryptedFile, encryptedAESKey, roomId, socket]);
+    
     return (
         <div>
             <h1>Chat App</h1>

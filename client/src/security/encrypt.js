@@ -1,6 +1,8 @@
 import forge from 'node-forge';
 import CryptoJS from 'crypto-js';
 
+const aesKey = import.meta.env.VITE_AES_KEY;
+
 // Helper to download file
 const downloadFile = (content, filename) => {
     const blob = new Blob([content], { type: 'application/octet-stream' });
@@ -14,29 +16,36 @@ const downloadFile = (content, filename) => {
     URL.revokeObjectURL(url);
 };
 
-
+// AES Encryption for file
 // AES Encryption for file
 const aesEncryptFile = (fileData, aesKey) => {
-    // Convert Uint8Array to a WordArray
+    // Convert Uint8Array to a WordArray for CryptoJS
     const wordArray = CryptoJS.lib.WordArray.create(fileData);
     
     // Ensure aesKey is properly converted to a WordArray
     const keyWordArray = CryptoJS.enc.Hex.parse(aesKey);
 
-    // Encrypt the file using AES
+    // Generate a random Initialization Vector (IV) for AES
+    const iv = CryptoJS.lib.WordArray.random(16); // 128-bit IV for AES-CBC mode
+
+    // Encrypt the file using AES with the key and IV
     const encrypted = CryptoJS.AES.encrypt(wordArray, keyWordArray, {
+        iv: iv,
         mode: CryptoJS.mode.CBC,
         padding: CryptoJS.pad.Pkcs7
     });
 
-    return encrypted.toString();
+    // Concatenate the IV with the encrypted file (IV is needed for decryption)
+    const encryptedWithIv = iv.concat(encrypted.ciphertext);
+
+    return encryptedWithIv.toString(CryptoJS.enc.Base64); // Return as base64 string
 };
 
 
 // RSA Encryption for AES key
 const rsaEncryptKey = (aesKey, recieversPublicKeyPem) => {
     const recieversPublicKey = forge.pki.publicKeyFromPem(recieversPublicKeyPem);
-    // Encode the AES key as a string for RSA encryption
+    // Encrypt the AES key using the receiver's public RSA key
     const encryptedKey = recieversPublicKey.encrypt(aesKey, 'RSA-OAEP');
     return forge.util.encode64(encryptedKey); // Encode the encrypted key in base64
 };
@@ -44,32 +53,29 @@ const rsaEncryptKey = (aesKey, recieversPublicKeyPem) => {
 // Main encryption function
 const encrypt = async (selectedFile, signatureBase64, recieversPublicKeyPem) => {
     try {
-        // Read the file into ArrayBuffer and convert to Uint8Array
-        const arrayBuffer = await selectedFile.arrayBuffer();
-        const fileData = new Uint8Array(arrayBuffer);
+        // Step 1: Read the PDF file as an ArrayBuffer
+        const fileData = await selectedFile.arrayBuffer();
+        
+        // Step 3: Encrypt the file data using AES
+        const encryptedFile = aesEncryptFile(new Uint8Array(fileData), aesKey);
 
-        // Combine file and signature into a single array
-        const signatureArray = new TextEncoder().encode(signatureBase64);
-        const combinedFile = new Uint8Array([...signatureArray, ...fileData]);
+        // Step 4: Encrypt the AES key using the receiver's public RSA key
+        const encryptedAESKey = rsaEncryptKey(aesKey, recieversPublicKeyPem);
 
-        // Step 1: Generate a random AES key for file encryption
-        const aesKey = CryptoJS.lib.WordArray.random(32).toString(CryptoJS.enc.Hex); // 256-bit AES key
-        console.log(aesKey);
+        // Step 5: Combine signature, encrypted AES key, and encrypted file data
+        const combinedData = JSON.stringify({
+            signature: signatureBase64,
+            encryptedAESKey: encryptedAESKey,
+            encryptedFile: encryptedFile,
+        });
 
-        // Step 2: Encrypt the file using AES
-        const encryptedFile = aesEncryptFile(combinedFile, aesKey);
+        // Optional: Download the encrypted file for testing purposes
+        downloadFile(combinedData, 'encrypted_file.json');
 
-        // Step 3: Encrypt the AES key using RSA
-        const encryptedKey = rsaEncryptKey(aesKey, recieversPublicKeyPem);
-
-        // Step 4: Save the encrypted file and key
-        downloadFile(encryptedFile, 'encryptedFile.dat');
-        downloadFile(encryptedKey, 'encryptedKey.dat');
-
-        return { encryptedFile, encryptedKey };
+        return { encryptedFile, encryptedAESKey };
     } catch (error) {
-        console.error('Error encrypting file and signature:', error);
-        throw error;
+        console.error('Encryption error:', error);
+        throw new Error('Encryption failed');
     }
 };
 
