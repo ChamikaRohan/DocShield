@@ -49,14 +49,12 @@ const socketHandler = (io) => {
                     if (!response.ok) {
                         throw new Error('Network response was not ok');
                     }
-
                     const data = await response.json();
                     console.log(data);
         
                     socket.emit('fileStatus', { success: true, message: 'File and secret data received successfully.' });
                 } catch (error) {
                     console.error('Error uploading file and secret data:', error);
-        
                     socket.emit('fileStatus', { success: false, message: 'Error uploading file and secret data.' });
                 }
         });

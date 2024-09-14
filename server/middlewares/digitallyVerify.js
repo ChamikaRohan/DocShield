@@ -28,7 +28,7 @@ const digitallyVerify = async (req, res, next) => {
         next();
     } catch (error) {
         console.error('Error verifying PDF:', error);
-        throw error;
+        res.status(500).json({message: error});
     }
 };
 
