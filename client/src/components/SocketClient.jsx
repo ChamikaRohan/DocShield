@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
-import digitallySign from '../digitallySign/digitallySign.js';
-import { retriveUserID } from '../middlewares/RetriveUserID.js'; 
+import digitallySign from '../security/digitallySign.js';
+import encrypt from '../security/encrypt.js';
+import { retriveUserID } from '../middlewares/RetriveUserID.js';
 
 export default function SocketClient() {
     const serverURL = import.meta.env.VITE_SERVER_BASE_URL;
@@ -12,29 +13,28 @@ export default function SocketClient() {
     const [messages, setMessages] = useState([]);
     const [error, setError] = useState('');
     const [selectedFile, setSelectedFile] = useState(null);
-    const [publicKeyPemData, setPublicKeyPemData] = useState(null);
+    const [privateKeyPem, setPrivateKeyPem] = useState(null);
     const [signatureBase64Data, setSignatureBase64Data] = useState(null);
     const [fileStatus, setFileStatus] = useState('');
-    const [email, setEmail] = useState(null);
-    console.log(email);
+    const [senderEmail, setSenderEmail] = useState(null);
+    const [recieversPublicKey, setRecieversPublicKey] = useState(''); // Added state for receiver's public key
 
     useEffect(() => {
         const checkUserAuth = async () => {
-        try {
-            const userEmail = await retriveUserID();
-            if (userEmail.user) {
-            setEmail(userEmail.email);
-            } else {
-            setError('Unauthorized or Invalid token');
+            try {
+                const response = await retriveUserID();
+                if (response.user) {
+                    setSenderEmail(response.email);
+                } else {
+                    setError('Unauthorized or Invalid token');
+                }
+            } catch (err) {
+                setError('An error occurred while checking the auth status.');
             }
-        } catch (err) {
-            setError('An error occurred while checking the auth status.');
-        }
         };
 
         checkUserAuth();
     }, []);
-
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
@@ -45,22 +45,14 @@ export default function SocketClient() {
         }
     };
 
-    const handleSign = async () => {
+    const handleSignAndEncrpt = async () => {
         if (selectedFile) {
             try {
-                const { publicKeyPem, signatureBase64 } = await digitallySign(selectedFile);
-                setPublicKeyPemData(publicKeyPem);
+                const signatureBase64 = await digitallySign(selectedFile, privateKeyPem);
                 setSignatureBase64Data(signatureBase64);
-                
-                // const jsonString = JSON.stringify(secretSignatureData, null, 2); // Convert to a pretty JSON string
-                // const blob = new Blob([jsonString], { type: 'application/json' });
-                // const url = URL.createObjectURL(blob);
-                // const a = document.createElement('a');
-                // a.href = url;
-                // a.download = 'signatureData.json';
-                // a.click();
-                // URL.revokeObjectURL(url); // Clean up the URL object
-    
+
+                const encryptedData = await encrypt(selectedFile, signatureBase64, recieversPublicKey);
+                console.log(encryptedData);
             } catch (error) {
                 console.error('Error signing file:', error);
             }
@@ -77,9 +69,16 @@ export default function SocketClient() {
             setMessages((prevMessages) => [...prevMessages, msg]);
         });
 
+        // Listen for publicKey along with message when joining the room
+        socketIo.on('message', (msg) => {
+            if (msg.publicKey) {
+                setRecieversPublicKey(msg.publicKey); // Set receiver's public key
+            }
+        });
+
         socketIo.on('fileStatus', (status) => {
             if (status.success) {
-                setFileStatus(status.message); 
+                setFileStatus(status.message);
             } else {
                 setFileStatus('File processing failed.');
             }
@@ -105,44 +104,43 @@ export default function SocketClient() {
             alert('Please join a room first!');
             return;
         }
-    
+
         if (!selectedFile) {
             alert('Please select a PDF file to upload!');
             return;
         }
-    
+
         if (socket) {
-            await handleSign(); 
+            await handleSignAndEncrpt(); 
         } else {
             alert('Socket connection not established.');
         }
     };
-    
-    useEffect(() => {
-        if (publicKeyPemData && signatureBase64Data && selectedFile) {
-            const reader = new FileReader();
-    
-            reader.onloadend = () => {
-                const arrayBuffer = reader.result;
-    
-                // Create a bundle of the original PDF file and the signature data
-                const fileBundle = {
-                    pdfData: arrayBuffer,
-                    publicKeyData: publicKeyPemData,
-                    signatureData: signatureBase64Data,
-                    name: docName,
-                    email: roomId,
-                    sender: email
-                };
-    
-                // Emit the fileBundle through the socket
-                socket.emit('file', fileBundle, roomId);
-            };
-    
-            reader.readAsArrayBuffer(selectedFile);
-        }
-    }, [publicKeyPemData, signatureBase64Data, selectedFile, roomId, socket]);
 
+    // useEffect(() => {
+    //     if (privateKeyPem && signatureBase64Data && selectedFile && recieversPublicKey) {
+    //         const reader = new FileReader();
+
+    //         reader.onloadend = () => {
+    //             const arrayBuffer = reader.result;
+
+    //             // Create a bundle of the original PDF file and the signature data
+    //             const fileBundle = {
+    //                 pdfData: arrayBuffer,
+    //                 signatureData: signatureBase64Data,
+    //                 name: docName,
+    //                 email: roomId,
+    //                 sender: senderEmail,
+    //                 recieversPublicKey // Send receiver's public key as part of the fileBundle
+    //             };
+
+    //             // Emit the fileBundle through the socket
+    //             socket.emit('file', fileBundle, roomId);
+    //         };
+
+    //         reader.readAsArrayBuffer(selectedFile);
+    //     }
+    // }, [privateKeyPem, signatureBase64Data, selectedFile, recieversPublicKey, roomId, socket]);
     return (
         <div>
             <h1>Chat App</h1>
@@ -160,18 +158,32 @@ export default function SocketClient() {
                 onChange={(e) => setDocName(e.target.value)}
             />
             <input
+                type="text"
+                placeholder="Enter private key..."
+                value={privateKeyPem}
+                onChange={(e) => setPrivateKeyPem(e.target.value)}
+            />
+            <input
                 type="file"
                 accept="application/pdf"
                 onChange={handleFileChange}
             />
             <button onClick={sendFile}>Send file</button>
             <div id="messages">
-                {messages.map((msg, index) => (
-                    <p key={index}>{msg}</p>
-                ))}
+            {messages.map((msg, index) => (
+                <p key={index}>{typeof msg === 'object' ? JSON.stringify(msg.message) : msg}</p>
+            ))}
             </div>
+
             {error && <div id="error" style={{ color: 'red' }}>{error}</div>}
             {fileStatus && <div id="file-status">{fileStatus}</div>}
+            {recieversPublicKey && (
+                <div>
+                    <h4>Receiver's Public Key:</h4>
+                    <p>{typeof recieversPublicKey === 'object' ? JSON.stringify(recieversPublicKey) : recieversPublicKey}</p>
+                </div>
+            )}
+
         </div>
     );
 }

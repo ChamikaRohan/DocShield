@@ -12,14 +12,11 @@ const downloadFile = (content, filename) => {
     URL.revokeObjectURL(url);
 };
 
-const digitallySign = async (file) => {
+const digitallySign = async (file, privateKeyPem) => {
     try {
         const arrayBuffer = await file.arrayBuffer();
         const pdfData = new Uint8Array(arrayBuffer);
-
-        const keypair = forge.pki.rsa.generateKeyPair(2048);
-        const privateKey = keypair.privateKey;
-        const publicKey = keypair.publicKey;
+        const privateKey = forge.pki.privateKeyFromPem(privateKeyPem);
 
         const md = forge.md.sha256.create();
         
@@ -30,14 +27,10 @@ const digitallySign = async (file) => {
         }
 
         const signature = privateKey.sign(md);
-
-        const publicKeyPem = forge.pki.publicKeyToPem(publicKey);
         const signatureBase64 = forge.util.encode64(signature);
-
-        downloadFile(publicKeyPem, 'publicKey.pem');
         downloadFile(signatureBase64, 'signature.txt');
 
-        return { publicKeyPem, signatureBase64 };
+        return signatureBase64;
     } catch (error) {
         console.error('Error signing PDF:', error);
         throw error;

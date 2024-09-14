@@ -18,6 +18,10 @@ const userSchema = mongoose.Schema({
         required: true,
         type: String,
     },
+    public_key:{
+        required: true,
+        type: String
+    },
     documents:{
         type: [String],
         default: [],

@@ -7,15 +7,24 @@ const socketHandler = (io) => {
         console.log(`User:${socket.id} is connected to the socket.io server!`);
 
         socket.on('joinRoom', async (roomId) => {
+            try {
+                const userList = await getAllUserEmails();
+                const user = userList.find(user => user.email === roomId);
 
-            const emailList = await getAllUserEmails();
+                if (user) {
+                    socket.join(roomId);
+                    console.log(`User:${socket.id} joined room:${roomId}`);
 
-            if (emailList.includes(roomId)) {
-                socket.join(roomId);
-                console.log(`User:${socket.id} joined room:${roomId}`);
-                io.to(roomId).emit('message', `User:${socket.id} has joined the room`);
-            } else {
-                socket.emit('error', 'Invalid room ID');
+                    io.to(roomId).emit('message', {
+                        message: `User:${socket.id} has joined the room`,
+                        publicKey: user.public_key
+                    });
+                } else {
+                    socket.emit('error', 'Invalid room ID');
+                }
+            } catch (error) {
+                console.error('Error joining room:', error);
+                socket.emit('error', 'Internal server error!');
             }
         });
 

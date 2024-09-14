@@ -4,9 +4,7 @@ import jwt from "jsonwebtoken";
 import { initializeApp } from "firebase/app"
 import { getStorage, ref, getDownloadURL, uploadBytesResumable } from "firebase/storage"
 import fconfig from "../firebase/firebaseConfig.js"
-
-initializeApp(fconfig);
-const storage = getStorage();
+import forge from 'node-forge';
 
 export const signupUser = async(req, res) =>{
     try
@@ -16,9 +14,18 @@ export const signupUser = async(req, res) =>{
         if ( userExistsMail != null ) return res.status(400).json({error: "User already exists!"});
         
         const hashshedPassword = bcryptjs.hashSync(password, 10);
-        const user = new User({...req.body, password: hashshedPassword});
+
+        const keypair = forge.pki.rsa.generateKeyPair(2048);
+        const privateKey = keypair.privateKey;
+        const publicKey = keypair.publicKey;
+
+        const privateKeyPem = forge.pki.privateKeyToPem(privateKey);
+        const publicKeyPem = forge.pki.publicKeyToPem(publicKey);
+
+        const user = new User({...req.body, password: hashshedPassword, public_key: publicKeyPem});
+
         await user.save();
-        res.status(200).json({message: "User created successfully!"});
+        res.status(200).json({message: "User created successfully!", private_key: privateKeyPem});
     }
     catch(error)
     {
@@ -128,15 +135,17 @@ export const updateDocToMongo = async (req, res) => {
   }
 };
 
-export const getAllUserEmails = async (req, res) => {
-  try {
-    const users = await User.find({}, 'email');
-    const emails = users.map(user => user.email);
-    return emails;
-  } catch (error) {
-    res.status(500).json({ error: "Internal server error!" });
-  }
+export const getAllUserEmails = async () => {
+    const users = await User.find({}, 'email public_key');
+    
+    const emailAndKey = users.map(user => ({
+      email: user.email,
+      public_key: user.public_key
+    }));
+
+    return emailAndKey;
 };
+
 
 export const getUser = async (req, res) => {
   try {
