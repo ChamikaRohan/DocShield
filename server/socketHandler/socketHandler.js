@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-import {getAllUserEmails} from "../controllers/user.controller.js"
+import { getAllUserEmails } from "../controllers/user.controller.js"
 dotenv.config();
 
 const socketHandler = (io) => {
@@ -31,35 +31,34 @@ const socketHandler = (io) => {
         socket.on('file', async (fileBundle, roomId) => {
                 console.log(`Received file from ${socket.id} in room ${roomId}`);
         
-                const { pdfData, signatureData, encryptedAESKey, name, email, sender } = fileBundle;
+                const { encryptedFile, signatureData, name, email, sender } = fileBundle;
         
                 const formData = new FormData();
-    
-                formData.append('file', new Blob([pdfData]), name);
-                formData.append('AES-key', encryptedAESKey);
+                formData.append('encryptedFile', encryptedFile);
                 formData.append('signatureData', signatureData);
+                formData.append('name', name);
                 formData.append('email', email);
                 formData.append('sender', sender);
         
-                // try {
-                //     const response = await fetch(`${process.env.SERVER_URL}/api/user/verify-update-doc`, {
-                //         method: 'POST',
-                //         body: formData,
-                //     });
+                try {
+                    const response = await fetch(`${process.env.SERVER_URL}/api/user/verify-update-doc`, {
+                        method: 'POST',
+                        body: formData,
+                    });
         
-                //     if (!response.ok) {
-                //         throw new Error('Network response was not ok');
-                //     }
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
 
-                //     const data = await response.json();
-                //     console.log(data);
+                    const data = await response.json();
+                    console.log(data);
         
-                //     socket.emit('fileStatus', { success: true, message: 'File and secret data received successfully.' });
-                // } catch (error) {
-                //     console.error('Error uploading file and secret data:', error);
+                    socket.emit('fileStatus', { success: true, message: 'File and secret data received successfully.' });
+                } catch (error) {
+                    console.error('Error uploading file and secret data:', error);
         
-                //     socket.emit('fileStatus', { success: false, message: 'Error uploading file and secret data.' });
-                // }
+                    socket.emit('fileStatus', { success: false, message: 'Error uploading file and secret data.' });
+                }
         });
         
 

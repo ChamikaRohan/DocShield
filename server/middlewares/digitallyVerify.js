@@ -1,5 +1,6 @@
 import forge from 'node-forge';
 import { PDFDocument } from 'pdf-lib';
+import { getPublicKeyByEmail } from "../controllers/user.controller.js"
 
 const getPublicKey = (pem) => {
     return forge.pki.publicKeyFromPem(pem);
@@ -7,12 +8,10 @@ const getPublicKey = (pem) => {
 
 const digitallyVerify = async (req, res, next) => {
     try {
-        const pdfBytes = req.file.buffer;
-        const publicKeyPem = req.body.publicKeyData;
+        const pdfBytes = req.file;
+        const senderEmail = req.body.sender;
+        const publicKeyPem = await getPublicKeyByEmail(senderEmail);
         const signatureBase64 = req.body.signatureData;
-
-        console.log(publicKeyPem);
-        console.log(signatureBase64);
 
         const md = forge.md.sha256.create();
         md.update(pdfBytes.toString('binary'));
@@ -25,7 +24,7 @@ const digitallyVerify = async (req, res, next) => {
         if (!verified) {
             return res.status(401).json({ error: 'Signature verification failed!' });
         }
-        console.log(verified);
+
         next();
     } catch (error) {
         console.error('Error verifying PDF:', error);

@@ -6,6 +6,9 @@ import { getStorage, ref, getDownloadURL, uploadBytesResumable } from "firebase/
 import fconfig from "../firebase/firebaseConfig.js"
 import forge from 'node-forge';
 
+initializeApp(fconfig);
+const storage = getStorage();
+
 export const signupUser = async(req, res) =>{
     try
     {
@@ -93,24 +96,24 @@ export const updateDocToMongo = async (req, res) => {
   try {
     const { email } = req.body;
     const { sender } = req.body;
-    console.log(sender);
 
     const user = await User.findOne({ email });
-    console.log(user);
     if (!user) return res.status(404).json({ error: "User not found!" });
-
     if (!req.file) {
       return res.status(400).json({ error: "No file uploaded" });
     }
-
     const currentDateTime = new Date();
     const formattedDate = currentDateTime.toISOString().split('T')[0];
     const formattedTime = currentDateTime.toTimeString().split(' ')[0].replace(/:/g, '-');
-    const fileName = `${req.file.originalname.split('.pdf')[0]}_${formattedDate}_${formattedTime}.pdf`;
+    const fileName = `${req.body.name}_${formattedDate}_${formattedTime}.pdf`;
     const storageRef = ref(storage, `docs/${fileName}`);
     const metadata = {
-      contentType: req.file.mimetype,
-    };
+      contentType: 'application/pdf',
+      customMetadata: {
+          'uploadedBy': sender, 
+          'uploadTime': currentDateTime
+      }
+  };
 
     const uploadTask = uploadBytesResumable(storageRef, req.file.buffer, metadata);
 
@@ -156,4 +159,12 @@ export const getUser = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: "Internal server error!" });
   }
+};
+
+export const getPublicKeyByEmail = async (email) => {
+      const user = await User.findOne({ email }).select('public_key');
+      if (!user) {
+          return null;;
+      }
+      return user.public_key;
 };

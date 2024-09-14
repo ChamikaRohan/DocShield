@@ -19,7 +19,6 @@ export default function SocketClient() {
     const [senderEmail, setSenderEmail] = useState(null);
     const [recieversPublicKey, setRecieversPublicKey] = useState(''); 
     const [encryptedFile, setEncryptedFile] = useState(null);
-    const [encryptedAESKey, setEncryptedAESKey] = useState(null);
 
     useEffect(() => {
         const checkUserAuth = async () => {
@@ -53,9 +52,9 @@ export default function SocketClient() {
                 const signatureBase64 = await digitallySign(selectedFile, privateKeyPem);
                 setSignatureBase64Data(signatureBase64);
 
-                const {encryptedFile, encryptedAESKey} = await encrypt(selectedFile, signatureBase64, recieversPublicKey);
+                const encryptedFile = await encrypt(selectedFile, signatureBase64, recieversPublicKey);
                 setEncryptedFile(encryptedFile);
-                setEncryptedAESKey(encryptedAESKey);
+
             } catch (error) {
                 console.error('Error signing file:', error);
             }
@@ -121,11 +120,10 @@ export default function SocketClient() {
     };
 
     useEffect(() => {
-        if (encryptedFile && encryptedAESKey && roomId && socket) {
+        if (encryptedFile && roomId && socket) {
             const fileBundle = {
-                pdfData: encryptedFile,
+                encryptedFile: encryptedFile,
                 signatureData: signatureBase64Data,
-                encryptedAESKey: encryptedAESKey,
                 name: docName,
                 email: roomId,
                 sender: senderEmail,
@@ -133,7 +131,7 @@ export default function SocketClient() {
     
             socket.emit('file', fileBundle, roomId);
         }
-    }, [encryptedFile, encryptedAESKey, roomId, socket]);
+    }, [encryptedFile, roomId, socket]);
     
     return (
         <div>
