@@ -10,7 +10,11 @@ import Container from '@mui/material/Container';
 import Button from '@mui/material/Button';
 import MenuItem from '@mui/material/MenuItem';
 import { useNavigate } from 'react-router-dom';
+import { toast, ToastContainer } from 'react-toastify';
 import Logo_Information_Security from '../assets/Logo_Information_Security.png';
+import 'react-toastify/dist/ReactToastify.css';
+
+
 
 const pages = ['Inbox', 'Compose', 'SignOut'];
 
@@ -31,8 +35,18 @@ function Navbar() {
     } else if (page === 'Compose') {
       navigate('/compose');
     } else if (page === 'SignOut') {
- 
-      console.log('Signing out...');
+      //toast.success('Successfully logged out');      
+      //setTimeout(() => navigate('/login'), 1000);
+      toast.promise(
+        new Promise((resolve) => {
+          setTimeout(() => resolve(), 2000); 
+        }),
+        {
+          pending: 'Logging out...',
+        }
+      ).then(() => {
+        navigate('/login');
+      });
     }
   };
 

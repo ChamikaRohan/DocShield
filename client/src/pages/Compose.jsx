@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import Navbar from '../components/Navbar';
 import './compose.css';
 
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 const Compose = () => {
     const [file, setFile] = useState(null);
     const [filePreview, setFilePreview] = useState(null);
@@ -36,6 +39,7 @@ const Compose = () => {
     return (
         <div>
             <Navbar />
+            <ToastContainer />
             <div style={{ padding: '10px', margin: '25px', alignItems: 'center', marginTop: '80px' }}>
                
                 {isIDFound ? (
