@@ -5,7 +5,7 @@ import './compose.css';
 const Compose = () => {
     const [file, setFile] = useState(null);
     const [filePreview, setFilePreview] = useState(null);
-    const isIDFound = 1; 
+    const isIDFound = 0; 
   
  
     const handleFileChange = (event) => {
@@ -112,56 +112,72 @@ const Compose = () => {
                             <p style={{ color:'#36454F' }}>Browse File to upload!</p>
                         </div>
 
-                        <label htmlFor="file" className="footer">
-                        <svg
-                            fill="#000000"
-                            viewBox="0 0 32 32"
-                            xmlns="http://www.w3.org/2000/svg"
-                            style={{
-                            width: '40px', 
-                            height: '40px',
-                            transition: 'transform 0.3s ease',
-                            cursor: 'pointer',
-                            }}
-                            onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.2)')}
-                            onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
-                        >
-                                <path d="M15.331 6H8.5v20h15V14.154h-8.169z"></path>
-                                <path d="M18.153 6h-.009v5.342H23.5v-.002z"></path>
-                            </svg>
+                        <div className="footer">
+                            <div>
+                                <svg
+                                    fill="#000000"
+                                    viewBox="0 0 32 32"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    style={{
+                                        width: '40px', 
+                                        height: '40px',
+                                        transition: 'transform 0.3s ease',
+                                        cursor: 'pointer',
+                                    }}
+                                    onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.2)')}
+                                    onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+                                    onClick={() => document.getElementById('file').click()}  // Click event only for this SVG
+                                >
+                                    <path d="M15.331 6H8.5v20h15V14.154h-8.169z"></path>
+                                    <path d="M18.153 6h-.009v5.342H23.5v-.002z"></path>
+                                </svg>
+
+                                <input
+                                    id="file"
+                                    type="file"
+                                    style={{ display: 'none' }}  
+                                    onChange={handleFileChange}   
+                                />
+                            </div>
+
                             {!file && <p style={{ color:'#36454F' }}>Not selected file</p>}
-                            {file && (
-                                <p onClick={handleFileClick} style={{ cursor: 'pointer', color: 'teal' }}>
-                                    Selected file: {file.name}
-                                </p>
-                            )}
+                                                    {file && (
+                                                        <p onClick={handleFileClick} style={{ cursor: 'pointer', color: 'teal' }}>
+                                                            Selected file: {file.name}
+                                                            
+                                                        </p>
+                                                    )}
+                            
                             <svg
                                 onClick={handleFileDelete}
                                 fill="#000000"
                                 viewBox="0 0 24 24"
                                 xmlns="http://www.w3.org/2000/svg"
                                 style={{
-                                width: '35px', 
-                                height: '35px',
-                                transition: 'transform 0.3s ease',
-                                cursor: 'pointer',
+                                    width: '35px', 
+                                    height: '35px',
+                                    transition: 'transform 0.3s ease',
+                                    cursor: 'pointer',
                                 }}
                                 onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.2)')}
                                 onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
                             >
-                                <path d="M5.16565 10.1534C5.07629 8.99181 5.99473 8 7.15975 8H16.8402C18.0053 8 18.9237 8.9918 18.8344 10.1534L18.142 19.1534C18.0619 20.1954 17.193 21 16.1479 21H7.85206C6.80699 21 5.93811 20.1954 5.85795 19.1534L5.16565 10.1534Z" stroke="#000000" strokeWidth="2"></path>
-                                <path d="M19.5 5H4.5" stroke="#000000" strokeWidth="2" strokeLinecap="round"></path>
-                                <path d="M10 3C10 2.44772 10.4477 2 11 2H13C13.5523 2 14 2.44772 14 3V5H10V3Z" stroke="#000000" strokeWidth="2"></path>
+                                <path d="M5.16565 10.1534C5.07629 8.99181 5.99473 8 7.15975 8H16.8402C18.0053 8 18.9237 8.9918 18.8344 10.1534L18.142 19.1534C18.0619 20.1954 17.193 21 16.1479 21H7.85206C6.80699 21 5.93811 20.1954 5.85795 19.1534L5.16565 10.1534Z" fill="#FF7F50"></path>
+                                <path d="M19.5 5H4.5" fill="#FF7F50"></path>
+                                <path d="M10 3C10 2.44772 10.4477 2 11 2H13C13.5523 2 14 2.44772 14 3V5H10V3Z" fill="#FF7F50"></path>
                             </svg>
-                        </label>
-                        <input id="file" type="file" onChange={handleFileChange} />
+                        </div>
+
+                        
                     </div>
                 </div>
 
-                <div style={{ marginTop: '5px', marginBottom: '35px', alignItems: 'center' }}>
-                    <div className="input-container2" style={{ margin: '0 auto', maxWidth: '350px', maxHeight: '50px' }}>
-                        <textarea placeholder="Enter Document Title" type="text" />
-                            {/* <button className="button">Send</button> */}
+                <div style={{ marginTop: '5px', marginBottom: '35px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '40px' ,maxWidth:'1000px',marginLeft: 'auto', marginRight: 'auto'}}>
+                    <div className="input-container2" style={{ maxWidth: '550px', maxHeight: '60px' }}>
+                        <textarea placeholder="Enter Document Title" type="text" style={{ width: '100%', height: '25px' }} />
+                    </div>
+                    <div className="input-container2" style={{ maxWidth: '350px', maxHeight: '60px' }}>
+                        <textarea placeholder="Enter Your Private Key" type="text" style={{ width: '100%', height: '25px' }} />
                     </div>
                 </div>
 
