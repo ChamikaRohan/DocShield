@@ -1,0 +1,14 @@
+/* toastStyles.css */
+.custom-toast {
+    background-color: teal;
+    color: white;
+    border-radius: 5px;
+    padding: 10px;
+    font-size: 16px;
+  }
+  
+  .custom-toast .Toastify__toast-body {
+    display: flex;
+    align-items: center;
+  }
+  
