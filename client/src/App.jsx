@@ -16,14 +16,15 @@ export default function App() {
 
     <Router>
       <Routes>
+        <Route path="/signin" element={<Login />} />
+        <Route path="/signup" element={<SignUpPage />} />
+
         <Route path="/" element={<SignInPage />} />
         <Route path="/auth" element={<CheckAuth />} />
         <Route path="/docs" element={<ViewMyDocs />} />
         <Route path="/socket" element={<SocketClient />} />
         <Route path="/inbox" element={<Inbox />} />
-        <Route path="/compose" element={<Compose />} />
-        <Route path="/signin" element={<Login />} />
-        <Route path="/signup" element={<SignUpPage />} />
+        <Route path="/compose" element={<Compose />} /> 
         <Route path="/forgotpw" element={<ForgotPasswordPage />} />
 
       </Routes>

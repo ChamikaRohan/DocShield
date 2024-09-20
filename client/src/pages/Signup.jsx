@@ -1,40 +1,84 @@
 import React, { useState } from 'react';
 import { TextField, Button, Container, Typography, Box, Grid } from '@mui/material';
-import Logo_Information_Security from '../assets/Logo_Information_Security.png'; // Assuming the logo is in the assets folder
+import Logo_Information_Security from '../assets/Logo_Information_Security.png';
 
 const SignUpPage = () => {
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const serverURL = import.meta.env.VITE_SERVER_BASE_URL;
+  
+  const [formData, setFormData] = useState({
+    first_name: "",
+    last_name: "",
+    email: "",
+    password: "",
+  });
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState('');
+  const [message, setMessage] = useState({ type: '', text: '' });
 
-  // Email validation function
-  const isValidEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
+  // Validation function for email
+  const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+  // Handle input change for all form fields
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSignUp = (e) => {
+  // Function to handle private key download
+  const downloadPrivateKey = (privateKey) => {
+    const element = document.createElement("a");
+    const file = new Blob([privateKey], { type: "text/plain" });
+    element.href = URL.createObjectURL(file);
+    element.download = "private_key.pem";
+    document.body.appendChild(element);
+    element.click();
+  };
+
+  // Handle form submission
+  const handleSignUp = async (e) => {
     e.preventDefault();
-
-    if (!firstName || !lastName ||!email || !password || !confirmPassword) {
-      setError('Please fill in all fields.');
+    
+    // Input validations
+    if (!formData.first_name || !formData.last_name || !formData.email || !formData.password || !confirmPassword) {
+      setMessage({ type: 'error', text: 'Please fill in all fields.' });
       return;
     }
 
-    if (!isValidEmail(email)) {
-      setError('Please enter a valid email address.');
+    if (!isValidEmail(formData.email)) {
+      setMessage({ type: 'error', text: 'Please enter a valid email address.' });
       return;
     }
 
-    if (password !== confirmPassword) {
-      setError('Passwords do not match.');
+    if (formData.password !== confirmPassword) {
+      setMessage({ type: 'error', text: 'Passwords do not match.' });
       return;
     }
 
-    console.log({firstName,lastName, email, password });
+    // Send sign up request
+    try {
+      const response = await fetch(`${serverURL}/api/user/create-user`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setMessage({ type: 'success', text: data.message });
+        downloadPrivateKey(data.private_key);
+        alert("Please save your private key securely. It will not be shown again!");
+      } else {
+        setMessage({ type: 'error', text: data.error || "Something went wrong, please try again." });
+      }
+    } catch (error) {
+      setMessage({ type: 'error', text: "Something went wrong, please try again." });
+    }
+  };
+
+  // Shared input styles
+  const inputStyles = {
+    '& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline': { borderColor: 'teal' },
+    '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'teal' },
+    '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: 'teal' },
   };
 
   return (
@@ -43,159 +87,55 @@ const SignUpPage = () => {
         {/* Left Section: Logo and App Description */}
         <Grid item xs={12} md={6} display="flex" flexDirection="column" alignItems="center">
           <Box mb={4}>
-            {/* App Logo */}
-            <img src={Logo_Information_Security} alt="" style={{ width: '200px' }} />
+            <img src={Logo_Information_Security} alt="Logo" style={{ width: '200px' }} />
           </Box>
-          <Typography variant="h4" component="h2" align="center" gutterBottom style={{ color: '#388e3c', fontWeight: 'bold' }}>
-            Welcome to DOC SHIELD!
+          <Typography variant="h4" align="center" gutterBottom style={{ color: '#388e3c', fontWeight: 'bold' }}>
+            Welcome to DocShield !
           </Typography>
           <Typography variant="body1" align="center" style={{ maxWidth: '400px', color: 'teal' }}>
-            Doc Shield offers a trusted and secure way to transfer your documents with peace of mind. Whether you're managing sensitive contracts, legal papers, or confidential reports, our platform is designed to keep your files protected from unauthorized access.
+          Your trusted and secure way to share documents with peace of mind! Doc Shield provides a reliable way to transfer your documents, ensuring protection for sensitive contracts, legal papers, confidential reports and many more...
           </Typography>
         </Grid>
 
         {/* Right Section: Sign Up Form */}
         <Grid item xs={12} md={6}>
           <Box padding="24px" border="3px solid #388e3c" borderRadius="8px" boxShadow="0px 4px 12px rgba(0, 0, 0, 0.1)" sx={{ backgroundColor: 'white' }}>
-            <Typography variant="h4" component="h1" gutterBottom align="center" style={{ color: 'teal' }}>
-            CREATE ACCOUNT
+            <Typography variant="h4" align="center" gutterBottom style={{ color: 'teal' }}>
+              CREATE ACCOUNT
             </Typography>
 
-            {error && (
-              <Typography color="error" align="center" style={{ marginBottom: '16px', color: 'red' }}>
-                {error}
+            {message.text && (
+              <Typography align="center" style={{ marginBottom: '16px', color: message.type === 'error' ? 'red' : 'green' }}>
+                {message.text}
               </Typography>
             )}
 
             <form onSubmit={handleSignUp}>
-            <TextField
-                label="First Name"
-                variant="outlined"
-                fullWidth
-                margin="normal"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-                InputLabelProps={{
-                style: { color: 'teal' }, // Color of the label text
-                }}
-                 InputProps={{
-                  style: { color: 'teal' },
-                  sx: {
-                        '& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline': {
-                        borderColor: 'teal',
-                        },
-                        '&:hover .MuiOutlinedInput-notchedOutline': {
-                          borderColor: 'teal',
-                        },
-                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                        borderColor: 'teal',
-                    },
-                    },
-                }}
-            />
-            <TextField
-                label="Last Name"
-                variant="outlined"
-                fullWidth
-                margin="normal"
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-                InputLabelProps={{
-                style: { color: 'teal' }, // Color of the label text
-                }}
-                 InputProps={{
-                  style: { color: 'teal' },
-                  sx: {
-                        '& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline': {
-                        borderColor: 'teal',
-                        },
-                        '&:hover .MuiOutlinedInput-notchedOutline': {
-                          borderColor: 'teal',
-                        },
-                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                        borderColor: 'teal',
-                    },
-                    },
-                }}
-            />
-            <TextField
-                label="Email"
-                variant="outlined"
-                fullWidth
-                margin="normal"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                InputLabelProps={{
-                style: { color: 'teal' }, // Color of the label text
-                }}
-                 InputProps={{
-                  style: { color: 'teal' },
-                  sx: {
-                        '& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline': {
-                        borderColor: 'teal',
-                        },
-                        '&:hover .MuiOutlinedInput-notchedOutline': {
-                          borderColor: 'teal',
-                        },
-                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                        borderColor: 'teal',
-                    },
-                    },
-                }}
-            />
-
-            <TextField
-                label="Password"
-                type="password"
-                variant="outlined"
-                fullWidth
-                margin="normal"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                InputLabelProps={{
-                style: { color: 'teal' }, // Color of the label text
-                }}
-                 InputProps={{
-                  style: { color: 'teal' },
-                  sx: {
-                        '& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline': {
-                        borderColor: 'teal',
-                        },
-                        '&:hover .MuiOutlinedInput-notchedOutline': {
-                          borderColor: 'teal',
-                        },
-                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                        borderColor: 'teal',
-                    },
-                    },
-                }}
-              />
+              {['first_name', 'last_name', 'email', 'password'].map((field, idx) => (
+                <TextField
+                  key={idx}
+                  label={field.replace('_', ' ').replace(/\b\w/g, (char) => char.toUpperCase())}
+                  type={field.includes('password') ? 'password' : 'text'}
+                  name={field}
+                  fullWidth
+                  margin="normal"
+                  variant="outlined"
+                  value={formData[field]}
+                  onChange={handleChange}
+                  InputLabelProps={{ style: { color: 'teal' } }}
+                  InputProps={{ style: { color: 'teal' }, sx: inputStyles }}
+                />
+              ))}
 
               <TextField
                 label="Confirm Password"
                 type="password"
-                variant="outlined"
                 fullWidth
                 margin="normal"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                InputLabelProps={{
-                style: { color: 'teal' }, // Color of the label text
-                }}
-                 InputProps={{
-                  style: { color: 'teal' },
-                  sx: {
-                        '& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline': {
-                        borderColor: 'teal',
-                        },
-                        '&:hover .MuiOutlinedInput-notchedOutline': {
-                          borderColor: 'teal',
-                        },
-                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                        borderColor: 'teal',
-                    },
-                    },
-                }}
+                InputLabelProps={{ style: { color: 'teal' } }}
+                InputProps={{ style: { color: 'teal' }, sx: inputStyles }}
               />
 
               <Button type="submit"
