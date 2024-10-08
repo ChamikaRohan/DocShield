@@ -141,92 +141,79 @@
 
 
 
- .input-container {
+.input-container {
   display: flex;
-  
   background: white;
   border-radius: 1rem;
-  box-shadow: 20px 20px 20px #d8d8d8,-10px -10px 20px #f8f8f8; 
+  box-shadow: 20px 20px 20px #d8d8d8, -10px -10px 20px #f8f8f8;
   padding: 0.3rem;
   gap: 0.3rem;
 }
 
-.input-container input {
-  border-radius: 0.8rem 0 0 0.8rem;
-  box-shadow: inset 13px 13px 10px #c5e0c5, inset -13px -13px 10px #f4f9f4; 
-  width: 100%;
-  flex-basis: 75%;
+/* Input Styles */
+.input-container input,
+.input-container textarea {
+  border-radius: 0.8rem 0 0 0.8rem; 
+  box-shadow: inset 13px 13px 10px #c5e0c5, inset -13px -13px 10px #f4f9f4;
+  width: 100%; 
+  flex-basis: 75%; 
   padding: 1rem;
-  border: none;
+  border: none; 
   border-left: 2px solid #5ABF64; 
-  color: #5e5e5e;
-  transition: all 0.2s ease-in-out;
+  color: #5e5e5e; 
+  transition: all 0.2s ease-in-out; 
 }
 
-.input-container input:focus {
-  border-left: 2px solid #5ABF64; 
-  outline: none;
-  box-shadow: inset 13px 13px 10px #b3e0b3, inset -13px -13px 10px #e0f5e0;
+/* Focus Styles */
+.input-container input:focus,
+.input-container textarea:focus {
+  border-left: 2px solid #5ABF64;
+  outline: none; 
+  box-shadow: inset 13px 13px 10px #b3e0b3, inset -13px -13px 10px #e0f5e0; 
 }
 
+/* Button Styles */
 .input-container button {
-  flex-basis: 50%;
+  flex-basis: 50%; 
   padding: 1rem;
-  background: linear-gradient(135deg, #d9f5d9 0%, #5ABF64 100%); 
-  font-weight: 900;
-  letter-spacing: 0.3rem;
-  text-transform: uppercase;
-  color: white;
+  background: linear-gradient(135deg, #d9f5d9 0%, #5ABF64 100%);
+  font-weight: 900; 
+  letter-spacing: 0.3rem; 
+  text-transform: uppercase; 
+  color: white; 
   border: none;
-  width: 100%;
-  border-radius: 0 1rem 1rem 0;
-  transition: all 0.2s ease-in-out;
-  font-size:17px;
-  
+  width: 100%; 
+  border-radius: 0 1rem 1rem 0; 
+  transition: all 0.2s ease-in-out; 
+  font-size: 17px; 
 }
 
 .input-container button:hover {
   background: linear-gradient(135deg, #d9f5d9 0%, #4a9d53 100%); 
 }
 
-.input-container textarea {
-  border-radius: 0.8rem 0 0 0.8rem;
-   
-  box-shadow: inset 13px 13px 10px #c5e0c5, inset -13px -13px 10px #f4f9f4; 
-  width: 100%;
-  flex-basis: 75%;
-  padding: 1rem;
-  border: none;
-  border-left: 2px solid #5ABF64;
-  color: #5e5e5e;
-  transition: all 0.2s ease-in-out;
-}
-
-.input-container textarea:focus {
-  border-left: 2px solid #5ABF64; 
-  outline: none;
-  box-shadow: inset 13px 13px 10px #b3e0b3, inset -13px -13px 10px #e0f5e0; 
-}
-
-
-@media (max-width: 500px) {
+/* Media Query for Responsive Design */
+@media (max-width: 400px) {
   .input-container {
-    flex-direction: column;
+    flex-direction: column; 
+    gap: 0.5rem; 
   }
 
-  .input-container input {
-    border-radius: 0.8rem;
-  }
-
+  .input-container input,
   .input-container textarea {
-    border-radius: 0.8rem;
+    flex-basis: 100%; 
+    padding: 0.7rem; 
+    border-radius: 0.8rem; 
   }
 
   .input-container button {
-    padding: 1rem;
-    border-radius: 0.8rem;
+    flex-basis: 100%; 
+    padding: 0.8rem; 
+    border-radius: 0.8rem; 
+    font-size: 14px; 
   }
 }
+
 
 .input-container2 {
   display: flex;
@@ -242,7 +229,7 @@
   border-radius: 0.8rem 0 0 0.8rem;
   box-shadow: inset 13px 13px 10px #c5e0c5, inset -13px -13px 10px #f4f9f4; 
   width: 100%;
-  flex-basis: 75%;
+  flex-basis: 60%;
   padding: 1rem;
   border: none;
   border-left: 2px solid #5ABF64; 
@@ -277,7 +264,7 @@
 }
 
 
-@media (max-width: 500px) {
+@media (max-width: 400px) {
   .input-container2 {
     flex-direction: column;
   }
