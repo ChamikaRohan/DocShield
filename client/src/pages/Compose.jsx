@@ -126,7 +126,7 @@ const Compose = () => {
                                     }}
                                     onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.2)')}
                                     onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
-                                    onClick={() => document.getElementById('file').click()}  // Click event only for this SVG
+                                    onClick={() => document.getElementById('file').click()} 
                                 >
                                     <path d="M15.331 6H8.5v20h15V14.154h-8.169z"></path>
                                     <path d="M18.153 6h-.009v5.342H23.5v-.002z"></path>

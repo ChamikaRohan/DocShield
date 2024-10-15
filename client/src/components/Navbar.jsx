@@ -11,8 +11,12 @@ import Button from '@mui/material/Button';
 import MenuItem from '@mui/material/MenuItem';
 import { useNavigate } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
-import Logo_Information_Security from '../assets/Logo_Information_Security.png';
 import 'react-toastify/dist/ReactToastify.css';
+import Tooltip from '@mui/material/Tooltip';
+import Avatar from '@mui/material/Avatar';
+
+import Logo_Information_Security from '../assets/Logo_Information_Security.png';
+
 
 const pages = ['Inbox', 'Compose', 'SignOut'];
 
@@ -26,15 +30,13 @@ function Navbar() {
 
   const handleCloseNavMenu = (page) => {
     setAnchorElNav(null);
-
-
+    
+    // Ensure navigation works
     if (page === 'Inbox') {
       navigate('/inbox');
     } else if (page === 'Compose') {
       navigate('/compose');
     } else if (page === 'SignOut') {
-      //toast.success('Successfully logged out');      
-      //setTimeout(() => navigate('/login'), 1000);
       toast.promise(
         new Promise((resolve) => {
           setTimeout(() => resolve(), 2000); 
@@ -62,14 +64,13 @@ function Navbar() {
               mr: 3,
               ml: 4,
               display: { xs: 'none', md: 'flex' },
-              // fontFamily: 'monospace',
               fontWeight: '1000',
               letterSpacing: '.2rem',
               color: 'Teal',
               textDecoration: 'none',
-              fontFamily:'lato',
+              fontFamily: 'lato',
               textTransform: 'uppercase',
-              fontSize:'14px'
+              fontSize: '14px',
             }}
           >
             Welcome
@@ -82,20 +83,19 @@ function Navbar() {
             sx={{
               mr: 25,
               display: { xs: 'none', md: 'flex' },
-              // fontFamily: 'monospace',
               fontWeight: '900',
               letterSpacing: '.2rem',
               color: '#FF7F50',
               textDecoration: 'none',
-              fontFamily:'lato',
+              fontFamily: 'lato',
               textTransform: 'uppercase',
-              fontSize:'15px'
-
+              fontSize: '15px',
             }}
           >
             Sandunika!
           </Typography>
 
+          {/* Normal buttons for large screens */}
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' }, justifyContent: 'right' }}>
             {pages.map((page) => (
               <Button
@@ -132,6 +132,64 @@ function Navbar() {
               </Button>
             ))}
           </Box>
+
+          {/* Responsive hamburger menu for small screens */}
+          <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' }, justifyContent: 'right' }}>
+          <Typography
+            variant="h6"
+            noWrap
+            component="a"
+            href="#app-bar-with-responsive-menu"
+            sx={{
+              mr: 3,
+              ml: 4,
+              display: { xs: 'none', md: 'flex' },
+              fontWeight: '1000',
+              letterSpacing: '.2rem',
+              color: 'Teal',
+              textDecoration: 'none',
+              fontFamily: 'lato',
+              textTransform: 'uppercase',
+              fontSize: '14px',
+            }}
+          >
+            Welcome
+          </Typography>
+            <IconButton
+              size="large"
+              aria-label="open menu"
+              aria-controls="menu-appbar"
+              aria-haspopup="true"
+              onClick={handleOpenNavMenu}
+              color="inherit"
+              sx={{ color: 'teal' }}
+            >
+              <MenuIcon />
+            </IconButton>
+            <Menu
+              id="menu-appbar"
+              anchorEl={anchorElNav}
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'left',
+              }}
+              keepMounted
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'left',
+              }}
+              open={Boolean(anchorElNav)}
+              onClose={() => setAnchorElNav(null)}
+              sx={{ display: { xs: 'block', md: 'none' } }}
+            >
+              {pages.map((page) => (
+                <MenuItem key={page} onClick={() => handleCloseNavMenu(page)}>
+                  <Typography textAlign="center">{page}</Typography>
+                </MenuItem>
+              ))}
+            </Menu>
+          </Box>
+         
         </Toolbar>
       </Container>
     </AppBar>

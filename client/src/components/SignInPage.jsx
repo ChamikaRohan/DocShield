@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
+import { useNavigate } from "react-router-dom"
 
 function SignIn() {
   const serverURL = import.meta.env.VITE_SERVER_BASE_URL;
+
+  const navigate =useNavigate();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -18,7 +21,7 @@ function SignIn() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ email, password }),
-        credentials: 'include', // This allows the browser to store and send the cookie
+        credentials: 'include', 
       });
 
       if (response.ok) {
@@ -26,6 +29,9 @@ function SignIn() {
         setSuccess(data.message);
         setError('');
         console.log('Sign-in successful');
+        setTimeout(()=>{
+          navigate("/compose");
+        }, 1600);
       } else {
         const errorData = await response.json();
         setError(errorData.error || 'Sign-in failed');

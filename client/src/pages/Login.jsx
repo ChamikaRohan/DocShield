@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { TextField, Button, Container, Typography, Box, Grid, Link } from '@mui/material';
 import { AccountCircle } from '@mui/icons-material';
 import Logo_Information_Security from '../assets/Logo_Information_Security.png';
+import { useNavigate } from "react-router-dom"
 
 const formFieldStyles = {
   label: { color: 'teal' },
@@ -79,6 +80,8 @@ const LoginPage = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
+  const navigate =useNavigate();
+
   const handleLogin = async (e) => {
     e.preventDefault();
     if (!email || !password) {
@@ -100,6 +103,9 @@ const LoginPage = () => {
         const data = await response.json();
         setSuccess(data.message);
         setError('');
+        setTimeout(()=>{
+          navigate("/compose");
+        }, 500);
       } else {
         const errorData = await response.json();
         setError(errorData.error || 'Sign-in failed');
