@@ -253,8 +253,9 @@ const Compose = () => {
                                 <input
                                     id="file"
                                     type="file"
-                                    style={{ display: 'none' }}  
-                                    onChange={handleFileChange}   
+                                    accept="application/pdf"
+                                    onChange={handleFileChange}
+                                    style={{ display: 'none' }}   
                                 />
                             </div>
 
@@ -292,14 +293,14 @@ const Compose = () => {
 
                 <div style={{ marginTop: '5px', marginBottom: '35px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '40px' ,maxWidth:'1000px',marginLeft: 'auto', marginRight: 'auto'}}>
                     <div className="input-container2" style={{ maxWidth: '550px', maxHeight: '60px' }}>
-                        <textarea placeholder="Enter Document Title" type="text" style={{ width: '100%', height: '25px' }} />
+                        <textarea placeholder="Enter Document Title" type="text" value={docName} onChange={(e) => setDocName(e.target.value)} style={{ width: '100%', height: '25px' }} />
                     </div>
                     <div className="input-container2" style={{ maxWidth: '350px', maxHeight: '60px' }}>
-                        <textarea placeholder="Enter Your Private Key" type="text" style={{ width: '100%', height: '25px' }} />
+                        <textarea placeholder="Enter Your Private Key" type="text" value={privateKeyPem} onChange={(e) => setPrivateKeyPem(e.target.value)}style={{ width: '100%', height: '25px' }} />
                     </div>
                 </div>
 
-                <button className="button" style={{ marginTop: '15px', padding: '10px', marginLeft: 'auto', marginRight: 'auto' }}>
+                <button onClick={sendFile} className="button" style={{ marginTop: '15px', padding: '10px', marginLeft: 'auto', marginRight: 'auto' }}>
                     SEND DOCUMENT
                     <svg className="icon" viewBox="0 0 24 24" fill="currentColor">
                         <path
