@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TextField, Button, Container, Typography, Box, Grid } from '@mui/material';
+import { TextField, Button, Container, Typography, Box, Grid, Link } from '@mui/material';
 import Logo_Information_Security from '../assets/Logo_Information_Security.png';
 
 const SignUpPage = () => {
@@ -150,6 +150,16 @@ const SignUpPage = () => {
                 Sign Up
               </Button>
             </form>
+            {/* New User? Sign Up Link */}
+            <Box mt={2} textAlign="center">
+              <Typography variant="body2" sx={{ color: 'teal' }}>
+                Already have an account?{' '}
+                <Link href="/signin" underline="hover" sx={{ color: 'teal' }}>
+                  Sign In
+                </Link>
+              </Typography>
+            </Box>
+
           </Box>
         </Grid>
       </Grid>
