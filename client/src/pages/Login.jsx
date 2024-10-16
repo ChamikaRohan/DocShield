@@ -3,6 +3,7 @@ import { TextField, Button, Container, Typography, Box, Grid, Link } from '@mui/
 import { AccountCircle } from '@mui/icons-material';
 import Logo_Information_Security from '../assets/Logo_Information_Security.png';
 import { useNavigate } from "react-router-dom"
+import { Toaster, toast } from 'react-hot-toast';
 
 const formFieldStyles = {
   label: { color: 'teal' },
@@ -103,17 +104,20 @@ const LoginPage = () => {
         const data = await response.json();
         setSuccess(data.message);
         setError('');
+        toast.success('Sign In successfully!', { duration: 1500 });
         setTimeout(()=>{
           navigate("/compose");
-        }, 500);
+        }, 1500);
       } else {
         const errorData = await response.json();
         setError(errorData.error || 'Sign-in failed');
         setSuccess('');
+        toast.error('Sign In unsuccessfull!', { duration: 1500 });
       }
     } catch (err) {
       setError('An error occurred. Please try again.');
       setSuccess('');
+      toast.error('Sign In unsuccessfull!', { duration: 1500 });
     } finally {
       setLoading(false);
     }
@@ -152,18 +156,6 @@ const LoginPage = () => {
               USER LOGIN
             </Typography>
 
-            {/* Error/Success Messages */}
-            {error && (
-              <Typography color="error" align="center" sx={{ mb: 2 }}>
-                {error}
-              </Typography>
-            )}
-            {success && (
-              <Typography color="success.main" align="center" sx={{ mb: 2 }}>
-                {success}
-              </Typography>
-            )}
-
             <LoginForm
               handleLogin={handleLogin}
               email={email}
@@ -185,6 +177,7 @@ const LoginPage = () => {
           </Box>
         </Grid>
       </Grid>
+      <Toaster position="top-center" reverseOrder={false} />
     </Container>
   );
 };
