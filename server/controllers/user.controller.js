@@ -139,15 +139,18 @@ export const updateDocToMongo = async (req, res) => {
 };
 
 export const getAllUserEmails = async () => {
-    const users = await User.find({}, 'email public_key');
-    
-    const emailAndKey = users.map(user => ({
-      email: user.email,
-      public_key: user.public_key
-    }));
+  const users = await User.find({}, 'email public_key first_name last_name');
+  
+  const emailAndKey = users.map(user => ({
+    email: user.email,
+    public_key: user.public_key,
+    first_name: user.first_name,
+    last_name: user.last_name
+  }));
 
-    return emailAndKey;
+  return emailAndKey;
 };
+
 
 
 export const getUser = async (req, res) => {

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { TextField, Button, Container, Typography, Box, Grid, Link } from '@mui/material';
 import Logo_Information_Security from '../assets/Logo_Information_Security.png';
+import { Toaster, toast } from 'react-hot-toast';
 
 const SignUpPage = () => {
   const serverURL = import.meta.env.VITE_SERVER_BASE_URL;
@@ -65,12 +66,25 @@ const SignUpPage = () => {
       if (response.ok) {
         setMessage({ type: 'success', text: data.message });
         downloadPrivateKey(data.private_key);
-        alert("Please save your private key securely. It will not be shown again!");
+        toast.success('Sign Up successfully!', { duration: 1500 });
+        toast(
+          "Please save your private key securely. It will not be shown again!",
+          {
+            duration: 6000,
+          }
+        );
+        setTimeout(()=>{
+          navigate("/signin");
+        }, 1600);
       } else {
         setMessage({ type: 'error', text: data.error || "Something went wrong, please try again." });
+        toast.error('Sign Up unsuccessfull!', { duration: 1500 });
+        toast.error(`${data.error}`, { duration: 1500 });
       }
     } catch (error) {
       setMessage({ type: 'error', text: "Something went wrong, please try again." });
+      toast.error('Sign Up unsuccessfull!', { duration: 1500 });
+      toast.error(`${data.error}`, { duration: 1500 });
     }
   };
 
@@ -103,12 +117,6 @@ const SignUpPage = () => {
             <Typography variant="h4" align="center" gutterBottom style={{ color: 'teal' }}>
               CREATE ACCOUNT
             </Typography>
-
-            {message.text && (
-              <Typography align="center" style={{ marginBottom: '16px', color: message.type === 'error' ? 'red' : 'green' }}>
-                {message.text}
-              </Typography>
-            )}
 
             <form onSubmit={handleSignUp}>
               {['first_name', 'last_name', 'email', 'password'].map((field, idx) => (
@@ -163,6 +171,7 @@ const SignUpPage = () => {
           </Box>
         </Grid>
       </Grid>
+      <Toaster position="top-center" reverseOrder={false} />
     </Container>
   );
 };

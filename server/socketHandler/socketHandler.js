@@ -10,14 +10,16 @@ const socketHandler = (io) => {
             try {
                 const userList = await getAllUserEmails();
                 const user = userList.find(user => user.email === roomId);
-
+        
                 if (user) {
                     socket.join(roomId);
                     console.log(`User:${socket.id} joined room:${roomId}`);
-
+        
                     io.to(roomId).emit('message', {
                         message: `User:${socket.id} has joined the room`,
-                        publicKey: user.public_key
+                        publicKey: user.public_key,
+                        firstName: user.first_name,
+                        lastName: user.last_name
                     });
                 } else {
                     socket.emit('error', 'Invalid room ID');
@@ -27,6 +29,7 @@ const socketHandler = (io) => {
                 socket.emit('error', 'Internal server error!');
             }
         });
+        
 
         socket.on('file', async (fileBundle, roomId) => {
                 console.log(`Received file from ${socket.id} in room ${roomId}`);

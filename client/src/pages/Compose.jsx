@@ -23,13 +23,16 @@ const Compose = () => {
     const [encryptedFile, setEncryptedFile] = useState(null);
     const [file, setFile] = useState(null);
     const [filePreview, setFilePreview] = useState(null);
-    const isIDFound = 0; 
+    const [isIDFound, setIsIDFound] = useState(false);
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
 
     useEffect(() => {
         const checkUserAuth = async () => {
             try {
                 const response = await retriveUserID();
                 if (response.user) {
+                    console.log(response);
                     setSenderEmail(response.email);
                 } else {
                     setError('Unauthorized or Invalid token');
@@ -91,6 +94,14 @@ const Compose = () => {
             }
         });
 
+        socketIo.on('message', (msg) => {
+            if (msg.firstName && msg.lastName) {
+                setFirstName(msg.firstName);
+                setLastName(msg.lastName);
+                console.log(`Received first name: ${msg.firstName}, last name: ${msg.lastName}`);
+            }
+        });
+
         socketIo.on('fileStatus', (status) => {
             if (status.success) {
                 setFileStatus(status.message);
@@ -111,6 +122,7 @@ const Compose = () => {
     const joinRoom = () => {
         if (socket) {
             socket.emit('joinRoom', roomId);
+            setIsIDFound(true);
         }
     };
 
@@ -151,6 +163,10 @@ const Compose = () => {
         }
     }, [encryptedFile, roomId, socket]);
 
+    const unjoinRoom = () => {
+        setIsIDFound(false);   
+    }
+
     return (
         <div>
             <Navbar />
@@ -174,10 +190,10 @@ const Compose = () => {
                                 >
                                     <path d="M12 12c2.761 0 5-2.239 5-5s-2.239-5-5-5-5 2.239-5 5 2.239 5 5 5zm0 2c-3.674 0-11 1.839-11 5.5v2.5h22v-2.5c0-3.661-7.326-5.5-11-5.5z"/>
                                 </svg>
-                                Sandunika Thanthriwatta
+                                {firstName} {lastName}
                             </button>
 
-                            <button class="Btn">
+                            <button class="Btn" onClick={unjoinRoom}>
                                 <div class="sign">
                                     <svg
                                     viewBox="0 0 16 16"
@@ -296,7 +312,7 @@ const Compose = () => {
                         <textarea placeholder="Enter Document Title" type="text" value={docName} onChange={(e) => setDocName(e.target.value)} style={{ width: '100%', height: '25px' }} />
                     </div>
                     <div className="input-container2" style={{ maxWidth: '350px', maxHeight: '60px' }}>
-                        <textarea placeholder="Enter Your Private Key" type="text" value={privateKeyPem} onChange={(e) => setPrivateKeyPem(e.target.value)}style={{ width: '100%', height: '25px' }} />
+                        <textarea placeholder="Enter Your Key" type="text" value={privateKeyPem} onChange={(e) => setPrivateKeyPem(e.target.value)}style={{ width: '100%', height: '25px' }} />
                     </div>
                 </div>
 
