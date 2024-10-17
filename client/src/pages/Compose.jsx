@@ -5,6 +5,7 @@ import io from 'socket.io-client';
 import digitallySign from '../security/digitallySign.js';
 import encrypt from '../security/encrypt.js';
 import { retriveUserID } from '../middlewares/RetriveUserID.js';
+import { Toaster, toast } from 'react-hot-toast';
 
 const Compose = () => {
     const serverURL = import.meta.env.VITE_SERVER_BASE_URL;
@@ -70,12 +71,11 @@ const Compose = () => {
 
                 const encryptedFile = await encrypt(selectedFile, signatureBase64, recieversPublicKey);
                 setEncryptedFile(encryptedFile);
-
             } catch (error) {
-                console.error('Error signing file:', error);
+                toast.error('Error signing file!', { duration: 1500 });
             }
         } else {
-            alert('Please select a PDF file to sign.');
+            toast.error('Please select a PDF file to sign!', { duration: 1500 });
         }
     };
 
@@ -128,24 +128,25 @@ const Compose = () => {
 
     const handleFileDelete = () => {
         setFile(null);
+        setSelectedFile(null);
         setFilePreview(null);
     };
 
     const sendFile = async () => {
         if (!roomId.trim()) {
-            alert('Please join a room first!');
+            toast.error('Please join a room first!', { duration: 1500 });
             return;
         }
 
         if (!selectedFile) {
-            alert('Please select a PDF file to upload!');
+            toast.error('Please select a PDF file to upload!', { duration: 1500 });
             return;
         }
 
         if (socket) {
             await handleSignAndEncrpt(); 
         } else {
-            alert('Socket connection not established.');
+            toast.error('Socket connection not established!', { duration: 1500 });
         }
     };
 
@@ -275,14 +276,14 @@ const Compose = () => {
                                 />
                             </div>
 
-                            {!file && <p style={{ color:'#36454F' }}>Not selected file</p>}
-                                                    {file && (
-                                                        <p onClick={handleFileClick} style={{ cursor: 'pointer', color: 'teal' }}>
-                                                            Selected file: {file.name}
-                                                            
-                                                        </p>
-                                                    )}
-                            
+                            {/* Display the appropriate message based on file state */}
+            {!selectedFile ? (
+                <p style={{ color: '#36454F' }}>Not selected file</p>
+            ) : (
+                <p onClick={handleFileClick} style={{ cursor: 'pointer', color: 'teal' }}>
+                    Selected file: {selectedFile.name}
+                </p>
+            )}
                             <svg
                                 onClick={handleFileDelete}
                                 fill="#000000"
@@ -327,6 +328,7 @@ const Compose = () => {
                     </svg>
                 </button>
             </div>
+            <Toaster position="top-center" reverseOrder={false} />
         </div>
     );
 };

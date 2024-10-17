@@ -49,7 +49,7 @@ const ExpandMore = styled((props) => {
   ],
 }));
 
-export default function DocCard() {
+export default function DocCard(props) {
   const [expanded, setExpanded] = React.useState(false);
 
   const handleExpandClick = () => {
@@ -72,8 +72,8 @@ export default function DocCard() {
           </IconButton>
         }
         
-        title="Chamika Rohan" 
-        subheader="September 14, 2016" 
+        title={props.sender}
+        subheader={props.dateAndTime}
         
       />
       <CardMedia sx={{ maxHeight:'100px' }}
@@ -82,9 +82,9 @@ export default function DocCard() {
         image={Logo_Information_Security}
         alt="document"
       />
-      <CardContent>
+      <CardContent sx={{display: "flex", justifyContent: "center"}}>
         <Typography variant="body2" sx={{ color: 'text.secondary' ,maxHeight:'5px',fontFamily:'lato'}}>
-          Your message goes here
+        {props.name}
         </Typography>
       </CardContent >
       <CardActions  sx={{ justifyContent:'center',gap:'10px',maxHeight:'35px'}}>
