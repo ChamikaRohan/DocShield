@@ -2,7 +2,6 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import CheckAuth from './components/CheckAuth.jsx';
 import SocketClient from './components/SocketClient.jsx';
-import SignInPage from './components/SignInPage.jsx';
 import ViewMyDocs from './components/ViewMyDocs.jsx';
 import Inbox from './pages/Inbox.jsx';
 import Compose from './pages/Compose.jsx';
@@ -16,13 +15,11 @@ export default function App() {
 
     <Router>
       <Routes>
-        <Route path="/signin" element={<Login />} />
+        <Route path="/" element={<Login />} />
         <Route path="/signup" element={<SignUpPage />} />
         <Route path="/compose" element={<Compose />} /> 
         <Route path="/inbox" element={<Inbox />} />
 
-        <Route path="/" element={<SignInPage />} />
-        <Route path="/auth" element={<CheckAuth />} />
         <Route path="/docs" element={<ViewMyDocs />} />
         <Route path="/socket" element={<SocketClient />} />
         <Route path="/forgotpw" element={<ForgotPasswordPage />} />

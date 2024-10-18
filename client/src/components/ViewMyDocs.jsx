@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { retriveUserID } from '../middlewares/RetriveUserID.js'; // Import your email retrieval method
+import { retriveUserID } from '../middlewares/RetriveUserID.js'; 
 
 export default function ViewMyDocs() {
     const [documents, setDocuments] = useState([]);

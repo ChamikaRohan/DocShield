@@ -37,17 +37,9 @@ function Navbar() {
     } else if (page === 'Compose') {
       navigate('/compose');
     } else if (page === 'SignOut') {
-      toast.promise(
-        new Promise((resolve) => {
-          setTimeout(() => resolve(), 2000); 
-        }),
-        {
-          pending: 'Logging out...',
-        }
-      ).then(() => {
-        navigate('/login');
-      });
-    }
+      localStorage.removeItem("access_token"); 
+      navigate('/');
+  }
   };
 
   return (
