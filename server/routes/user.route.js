@@ -2,7 +2,7 @@ import express from "express"
 import { initializeApp } from "firebase/app";
 import fconfig from "../firebase/firebaseConfig.js"
 import multer from "multer"
-import {signupUser, signinUser, updateDocToMongo, getAllUserEmails, getUser, auth} from "../controllers/user.controller.js"
+import {signupUser, signinUser, updateDocToMongo, getAllUserEmails, getUser, auth, sendMail} from "../controllers/user.controller.js"
 import digitallyVerify from "../middlewares/digitallyVerify.js"
 import decrypt from "../middlewares/decrypt.js"
 import { cookieJwtAuth } from "../middlewares/cookieJwtAuth.js"
@@ -20,5 +20,7 @@ route.post("/verify-update-doc", uploadFileMulter.single('file'),decrypt ,digita
 
 route.get("/get-all-emails", getAllUserEmails);
 route.post("/get-user", getUser);
+
+route.post("/email-to-owner", sendMail);
 
 export default route;
