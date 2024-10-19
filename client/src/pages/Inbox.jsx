@@ -3,6 +3,7 @@ import { retriveUserID } from '../middlewares/RetriveUserID.js';
 import Navbar from '../components/Navbar';
 import DocCard from '../components/DocCard';
 import './inbox.css';
+import { useNavigate } from "react-router-dom";
 
 const Inbox = () => {
   const [documents, setDocuments] = useState([]);
@@ -11,6 +12,8 @@ const Inbox = () => {
   const [error, setError] = useState('');
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(true);
+
+  const navigate = useNavigate();
 
   const apiURL = import.meta.env.VITE_SERVER_BASE_URL;
 
@@ -35,9 +38,11 @@ const Inbox = () => {
           setEmail(userEmail.email);
         } else {
           setError('Unauthorized or Invalid token');
+          navigate('/signin');
         }
       } catch (err) {
         setError('An error occurred while checking the auth status.');
+        navigate('/signin');
       }
     };
     checkUserAuth();

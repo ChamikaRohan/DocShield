@@ -1,7 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import CheckAuth from './components/CheckAuth.jsx';
-import SocketClient from './components/SocketClient.jsx';
 import ViewMyDocs from './components/ViewMyDocs.jsx';
 import Inbox from './pages/Inbox.jsx';
 import Compose from './pages/Compose.jsx';
@@ -21,7 +20,6 @@ export default function App() {
         <Route path="/compose" element={<Compose />} /> 
         <Route path="/inbox" element={<Inbox />} />
         <Route path="/docs" element={<ViewMyDocs />} />
-        <Route path="/socket" element={<SocketClient />} />
         <Route path="/forgotpw" element={<ForgotPasswordPage />} />
       </Routes>
     </Router>

@@ -6,6 +6,7 @@ import digitallySign from '../security/digitallySign.js';
 import encrypt from '../security/encrypt.js';
 import { retriveUserID } from '../middlewares/RetriveUserID.js';
 import { Toaster, toast } from 'react-hot-toast';
+import { useNavigate } from "react-router-dom";
 
 const Compose = () => {
     const serverURL = import.meta.env.VITE_SERVER_BASE_URL;
@@ -28,6 +29,8 @@ const Compose = () => {
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
 
+    const navigate = useNavigate();
+
     useEffect(() => {
         const checkUserAuth = async () => {
             try {
@@ -37,9 +40,11 @@ const Compose = () => {
                     setSenderEmail(response.email);
                 } else {
                     setError('Unauthorized or Invalid token');
+                    navigate('/signin');
                 }
             } catch (err) {
                 setError('An error occurred while checking the auth status.');
+                navigate('/signin');
             }
         };
 
