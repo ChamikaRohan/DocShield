@@ -26,12 +26,19 @@ const userSchema = mongoose.Schema({
         type: [String],
         default: [],
         required: false
-    }
-    ,
+    },
     senders:{
         type: [String],
         default: [],
         required: false
+    },
+    otp: {
+        type: String,
+        required: false
+      },
+    otpExpiresAt: {
+    type: Date,
+    required: false
     }
 }, {timestamps: true});
 

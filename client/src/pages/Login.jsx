@@ -32,8 +32,23 @@ const LoginPage = () => {
 
       if (response.ok) {
         const data = await response.json();
-        setOtpStep(true); // Move to OTP step
-        toast.success('OTP sent to your email!', { duration: 1500 });
+
+        const OTPresponse = await fetch(`${serverURL}/api/user/send-otp`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email }),
+        });
+
+        setOtpStep(true); 
+
+        if (OTPresponse.ok) {
+          setOtpStep(true);
+          toast.success('OTP sent to your email!', { duration: 5500 });
+        } else {
+          const errorData = await OTPresponse.json();
+          toast.error(errorData.error || 'Failed to send OTP', { duration: 1500 });
+        }
+
       } else {
         const errorData = await response.json();
         toast.error(errorData.error || 'Sign-in failed', { duration: 1500 });

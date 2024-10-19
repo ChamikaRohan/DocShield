@@ -6,15 +6,28 @@ import { getStorage, ref, getDownloadURL, uploadBytesResumable } from "firebase/
 import fconfig from "../firebase/firebaseConfig.js"
 import forge from 'node-forge';
 import nodemailer from 'nodemailer';
+import crypto from 'crypto';
 
 initializeApp(fconfig);
 const storage = getStorage();
 
-export const sendMail = async (req, res) => {
-  const { recipientEmail, subject, message } = req.body;
+const generateOtp = () => {
+  return crypto.randomInt(100000, 999999).toString(); 
+};
 
-  try 
-  {
+
+
+export const sendOtp = async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ error: 'Email is required' });
+  }
+
+  const otp = generateOtp();
+  const otpExpiration = new Date(Date.now() + 10 * 60 * 1000); // OTP expires in 10 minutes
+
+  try {
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       port: 465,
@@ -22,23 +35,56 @@ export const sendMail = async (req, res) => {
       auth: {
         user: process.env.TICKETTWIST_EMAIL, 
         pass: process.env.TICKETTWIST_EMAIL_PASSWORD
-      }
+      },
     });
 
-    const info = await transporter.sendMail({
+    await transporter.sendMail({
       from: process.env.TICKETTWIST_EMAIL,
-      to: recipientEmail,
-      subject: subject,
-      html: message
+      to: email,
+      subject: 'Your DocShield OTP',
+      html: `<p>Thank you for using DocShield!</p><p>Your One-Time Password (OTP) is:</p><h1 style='font-size: 24px; color: #4CAF50; text-align: center;'>${otp}</h1><p>This OTP is valid for the next 10 minutes. Please do not share this code with anyone.</p><p>If you did not request this OTP, please ignore this email.</p><p>Thank you,<br>The DocShield Team</p><hr><footer style='font-size: 12px; color: #999; text-align: center;'><p>This email was sent to you because you requested an OTP for your account.</p><p>© 2024 DocShield. All rights reserved.</p></footer>`,
     });
 
-    res.status(200).json('Email sent successfully');
+    await User.updateOne(
+      { email },
+      { otp, otpExpiresAt: otpExpiration }
+    );
+
+    res.status(200).json({ message: 'OTP sent successfully' }); 
+  } catch (error) {
+    console.error('Error sending email:', error);
+    res.status(500).json({ error: 'Error sending OTP email' });
   }
-  catch (error) 
-  {
-    res.status(500).json('Error sending email');
+};
+
+export const verifyOtp = async (req, res) => {
+  const { email, otp } = req.body;
+
+  if (!email || !otp) {
+    return res.status(400).json({ error: 'Email and OTP are required' });
   }
-}
+
+  try {
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    if (user.otp !== otp) {
+      return res.status(400).json({ error: 'Invalid OTP' });
+    }
+
+    if (user.otpExpiresAt < new Date()) {
+      return res.status(400).json({ error: 'OTP has expired' });
+    }
+
+    res.status(200).json({ message: 'OTP verified successfully' });
+  } catch (error) {
+    console.error('Error verifying OTP:', error);
+    res.status(500).json({ error: 'Error verifying OTP' });
+  }
+};
 
 export const signupUser = async(req, res) =>{
     try
