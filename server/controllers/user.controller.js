@@ -58,6 +58,7 @@ export const sendOtp = async (req, res) => {
 };
 
 export const verifyOtp = async (req, res) => {
+  const JWT_SECRET = process.env.JWT_SECRET;
   const { email, otp } = req.body;
 
   if (!email || !otp) {
@@ -78,8 +79,9 @@ export const verifyOtp = async (req, res) => {
     if (user.otpExpiresAt < new Date()) {
       return res.status(400).json({ error: 'OTP has expired' });
     }
-
-    res.status(200).json({ message: 'OTP verified successfully' });
+    
+    const token = jwt.sign({ email: user.email, id: user._id }, JWT_SECRET, { expiresIn: '1h' });
+    res.status(200).cookie("access_token", token, {httpOnly: true, secure: true, sameSite: 'None'}).json({ message: "OTP verified successfully!" });
   } catch (error) {
     console.error('Error verifying OTP:', error);
     res.status(500).json({ error: 'Error verifying OTP' });
@@ -115,7 +117,6 @@ export const signupUser = async(req, res) =>{
 
 export const signinUser = async (req, res) => {
   try {
-    const JWT_SECRET = process.env.JWT_SECRET;
     const { email, password } = req.body;
 
     const user = await User.findOne({ email });
@@ -124,9 +125,7 @@ export const signinUser = async (req, res) => {
     const isMatch = bcryptjs.compareSync(password, user.password);
     if (!isMatch) return res.status(400).json({ error: "Invalid email or password!" });
 
-    const token = jwt.sign({ email: user.email, id: user._id }, JWT_SECRET, { expiresIn: '1h' });
-
-    res.status(200).cookie("access_token", token, {httpOnly: true, secure: true, sameSite: 'None'}).json({ message: "Signin successful!" });
+    res.status(200).json({ message: "Signin successful!" });
   } catch (error) {
     res.status(500).json({ error: "Internal server error!" });
   }
