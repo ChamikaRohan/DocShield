@@ -84,7 +84,7 @@ function Navbar() {
               fontSize: '15px',
             }}
           >
-            Sandunika!
+            Again!
           </Typography>
 
           {/* Normal buttons for large screens */}

@@ -24,9 +24,10 @@ const LoginPage = () => {
     setLoading(true);
     try {
       const response = await fetch(`${serverURL}/api/user/signin-user`, {
-        method: 'POST',
+        method: "POST",
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
+        credentials: 'include',
       });
 
       if (response.ok) {
@@ -36,6 +37,7 @@ const LoginPage = () => {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email }),
+          credentials: 'include',
         });
 
         setOtpStep(true); 
