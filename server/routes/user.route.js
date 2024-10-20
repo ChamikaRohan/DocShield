@@ -2,7 +2,7 @@ import express from "express"
 import { initializeApp } from "firebase/app";
 import fconfig from "../firebase/firebaseConfig.js"
 import multer from "multer"
-import {signupUser, signinUser, updateDocToMongo, getAllUserEmails, getUser, auth, sendOtp, verifyOtp} from "../controllers/user.controller.js"
+import {signupUser, signinUser, updateDocToMongo, getAllUserEmails, getUser, auth, sendOtp, verifyOtp, getTest} from "../controllers/user.controller.js"
 import digitallyVerify from "../middlewares/digitallyVerify.js"
 import decrypt from "../middlewares/decrypt.js"
 import { cookieJwtAuth } from "../middlewares/cookieJwtAuth.js"
@@ -23,5 +23,7 @@ route.post("/get-user", getUser);
 
 route.post("/send-otp", sendOtp);
 route.post("/verify-otp", verifyOtp);
+
+route.get("/test", getTest);
 
 export default route;

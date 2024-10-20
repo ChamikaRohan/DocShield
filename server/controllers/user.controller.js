@@ -247,3 +247,8 @@ export const getPublicKeyByEmail = async (email) => {
       }
       return user.public_key;
 };
+
+export const getTest = (req, res) => {
+  res.status(200).json({ message: "Working!" });
+};
+
