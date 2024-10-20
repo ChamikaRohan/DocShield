@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { TextField, Button, Container, Typography, Box, Grid, Link } from '@mui/material';
 import Logo_Information_Security from '../assets/Logo_Information_Security.png';
+import { useNavigate } from "react-router-dom";
 import { Toaster, toast } from 'react-hot-toast';
 
 const SignUpPage = () => {
@@ -14,6 +15,8 @@ const SignUpPage = () => {
   });
   const [confirmPassword, setConfirmPassword] = useState('');
   const [message, setMessage] = useState({ type: '', text: '' });
+
+  const navigate = useNavigate();
 
   // Validation function for email
   const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -67,15 +70,12 @@ const SignUpPage = () => {
         setMessage({ type: 'success', text: data.message });
         downloadPrivateKey(data.private_key);
         toast.success('Sign Up successfully!', { duration: 1500 });
-        toast(
-          "Please save your private key securely. It will not be shown again!",
-          {
-            duration: 6000,
-          }
-        );
+        toast("Please save your private key securely. It will not be shown again!",{duration: 3000});
+        console.log("Sdsdds")
         setTimeout(()=>{
           navigate("/signin");
         }, 1600);
+        console.log("sss")
       } else {
         setMessage({ type: 'error', text: data.error || "Something went wrong, please try again." });
         toast.error('Sign Up unsuccessfull!', { duration: 1500 });
