@@ -6,7 +6,7 @@ import Inbox from './pages/Inbox.jsx';
 import Compose from './pages/Compose.jsx';
 import Login from './pages/Login.jsx';
 import './App.css';
-import ForgotPasswordPage from './pages/forgot-password.jsx';
+import ForgotPasswordPage from './pages/Forgot-password.jsx';
 import SignUpPage from './pages/Signup.jsx';
 
 export default function App() {
