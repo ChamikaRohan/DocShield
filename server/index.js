@@ -36,6 +36,6 @@ server.listen(PORT, () => {
 
 mongoose.connect(DB_URL)
     .then(()=>{console.log("Database connected successfully!");})
-    .catch((error)=>{console.log("Database connected failed! \n",error.message);})
+    .catch((error)=>{console.log("Database connected failed!\n",error.message);})
 
 app.use("/api/user", userRoute);
