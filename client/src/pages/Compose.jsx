@@ -164,7 +164,7 @@ const Compose = () => {
                 email: roomId,
                 sender: senderEmail,
             };
-    
+            toast.success('Your document sent successfully!', { duration: 2500 });
             socket.emit('file', fileBundle, roomId);
         }
     }, [encryptedFile, roomId, socket]);

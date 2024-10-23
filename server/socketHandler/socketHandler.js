@@ -33,7 +33,6 @@ const socketHandler = (io) => {
 
         socket.on('file', async (fileBundle, roomId) => {
                 console.log(`Received file from ${socket.id} in room ${roomId}`);
-        
                 const { encryptedFile, signatureData, name, email, sender } = fileBundle;
         
                 const formData = new FormData();
