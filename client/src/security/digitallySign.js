@@ -28,7 +28,6 @@ const digitallySign = async (file, privateKeyPem) => {
 
         const signature = privateKey.sign(md);
         const signatureBase64 = forge.util.encode64(signature);
-        downloadFile(signatureBase64, 'signature.txt');
 
         return signatureBase64;
     } catch (error) {

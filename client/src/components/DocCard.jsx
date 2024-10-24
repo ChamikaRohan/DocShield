@@ -56,6 +56,12 @@ export default function DocCard(props) {
     setExpanded(!expanded);
   };
 
+  const handleViewPDFClick = () => {
+    window.open(props.docLink, '_blank');
+  };
+  
+
+  console.log(props.docLink);
   return (
     <Card sx={{ maxWidth: 230,maxHeight: 365,  transition: 'transform 0.3s, box-shadow 0.3s','&:hover': { transform: 'scale(1.05)', boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)' }}}>
       <CardHeader sx={{  maxHeight: '25px',
@@ -81,6 +87,7 @@ export default function DocCard(props) {
         height="100"
         image={Logo_Information_Security}
         alt="document"
+        onClick={handleViewPDFClick}
       />
       <CardContent sx={{display: "flex", justifyContent: "center"}}>
         <Typography variant="body2" sx={{ color: 'text.secondary' ,maxHeight:'5px',fontFamily:'lato'}}>

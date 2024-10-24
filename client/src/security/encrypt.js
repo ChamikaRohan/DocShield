@@ -56,9 +56,6 @@ const encrypt = async (selectedFile, signatureBase64, recieversPublicKeyPem) => 
             encryptedFile: encryptedFile,
         });
 
-        // Optional: Download the encrypted file for testing purposes
-        downloadFile(combinedData, 'encrypted_file.json');
-
         return encryptedFile;
     } catch (error) {
         console.error('Encryption error:', error);

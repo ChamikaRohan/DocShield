@@ -162,6 +162,7 @@ const Inbox = () => {
               name={name}
               dateAndTime={date+" "+time}
               sender={senders[index] || 'Unknown'}
+              docLink={documents[index]}
             />
           );
         })}
